@@ -255,7 +255,7 @@ public class AuthController {
 //			p1.add("FACEBOOK");
 //			p1.add("TWITTER");
 			System.out.println(platforms);
-		    System.out.println(postService.getMultiplePlatformfilter(platforms));
+//		    System.out.println(postService.getMultiplePlatformfilter(platforms));
 		    return postService.getMultiplePlatformfilter(platforms);
 		}
 		
