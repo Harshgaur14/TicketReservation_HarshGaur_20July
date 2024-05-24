@@ -1,5 +1,7 @@
 package com.pmu.pmu.services;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,18 +32,18 @@ private static final ArrayList<String> myList;
 	
 	static {
 		myList=new ArrayList<>();
-		 myList.add("Section 31b1");
-	        myList.add("Section 31b2");
-	        myList.add("Section 31b3");
-	        myList.add("Section 31b4");
-	        myList.add("Section 31b5");
-	        myList.add("Section 31b6");
-	        myList.add("Section 31b7");
-	        myList.add("Section 31b8");
-	        myList.add("Section 31b9");
+		 myList.add("31b1");
+	        myList.add("31b2");
+	        myList.add("31b3");
+	        myList.add("31b4");
+	        myList.add("31b5");
+	        myList.add("31b6");
+	        myList.add("31b7");
+	        myList.add("31b8");
+	        myList.add("31b9");
 
-	        myList.add("Section 31b10");
-	        myList.add("Section 31b11");
+	        myList.add("31b10");
+	        myList.add("31b11");
 	}
 	
 	
@@ -79,6 +81,60 @@ private static final ArrayList<String> myList;
     }
     
     
+    //last 7 days count
+    public List<DBObject> getCountOfDocumentsByPlatformlatest() {
+    	
+    	//current date 
+    	LocalDateTime currentDateTime = LocalDateTime.now();
+        //7days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	
+    	
+        // Print the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        
+        // Format the current date and time
+        String formattedcurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        // Print the formatted date and time
+        System.out.println("Formatted Date and Time: " + formattedcurrentDateTime);
+        System.out.println("Last Week Date and Time: " + formattedLastWeekDateTime);
+    	
+        
+        
+        
+        
+        
+        
+        try {
+            // Create query to retrieve documents between startDate and endDate
+            Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+            Query query = new Query(dateCriteria);
+
+            // Execute query and retrieve documents
+            List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+
+            // Create aggregation to count documents by platform within the date interval
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(dateCriteria),
+                    Aggregation.group("platform").count().as("count")
+            );
+
+            // Execute aggregation and retrieve counts by platform within the date interval
+            AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
+            List<DBObject> countsByPlatform = results.getMappedResults();
+
+            return countsByPlatform;
+        } catch (Exception e) {
+            // Handle any exceptions
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+    
+    
+    
     
     
     public List<DBObject> getCountByLaw(){
@@ -93,9 +149,52 @@ private static final ArrayList<String> myList;
     
     
     
+ public List<Map.Entry<String, Integer>> getTrendingHashtagsLatest() {
+        
+        // Current date
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        // 7 days before date
+        LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+
+        // Format the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String formattedCurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+
+        System.out.println("Formatted Date and Time: " + formattedCurrentDateTime);
+        System.out.println("Last Week Date and Time: " + formattedLastWeekDateTime);
+
+        // Fetch documents based on date criteria
+        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedCurrentDateTime);
+        Query query = new Query(dateCriteria);
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+        System.out.println(documents);
+
+        // Process documents to extract and count hashtags
+        Map<String, Integer> hashtagCountMap = new HashMap<>();
+        for (DBObject document : documents) {
+            List<String> hashtags = (List<String>) document.get("hashtags");
+            if (hashtags != null) {
+                for (String hashtag : hashtags) {
+                    if (!hashtag.isEmpty()) {
+                        hashtagCountMap.put(hashtag, hashtagCountMap.getOrDefault(hashtag, 0) + 1);
+                    }
+                }
+            }
+        }
+
+        // Sort hashtags by count in descending order
+        List<Map.Entry<String, Integer>> sortedHashtags = new ArrayList<>(hashtagCountMap.entrySet());
+        sortedHashtags.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+        // Return all hashtags with counts
+        return sortedHashtags;
+    }
+    
     
     
     public List<Map.Entry<String, Integer>> getTrendingHashtags() {
+    	
         Query query = new BasicQuery("{}");
         List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "trends");
 
@@ -136,6 +235,40 @@ private static final ArrayList<String> myList;
         return countsBySentiment;
     }
 
+    
+    
+    public List<DBObject> getCountOfDocumentsBySentimentlatest() {
+        
+    	LocalDateTime currentDateTime = LocalDateTime.now();
+        //7days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	
+    	
+        // Print the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        
+        // Format the current date and time
+        String formattedcurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+        Query query = new Query(dateCriteria);
+    	
+    	
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+        
+    
+    	
+    	 Aggregation aggregation = Aggregation.newAggregation(
+                 Aggregation.match(dateCriteria),
+                 Aggregation.group("sentiment").count().as("count")
+         );
+    	 
+        AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
+        List<DBObject> countsBySentiment = results.getMappedResults();
+
+        return countsBySentiment;
+    }
+    
    
    
     public int countSection(String section) {
@@ -162,6 +295,52 @@ private static final ArrayList<String> myList;
     	
     	return countAll;
     }
+    
+    
+    public int countSectionlatest(String section) {
+    	
+    	LocalDateTime currentDateTime = LocalDateTime.now();
+        //7days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	
+    	
+        // Print the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        
+        // Format the current date and time
+        String formattedcurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+        Query query = new Query(dateCriteria);
+    	
+    	
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+    	
+    	int count = 0;
+        for (DBObject document : documents) {
+            List<String> allSections = (List<String>) document.get("all_sections");
+            if (allSections != null && allSections.contains(section)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+    
+    
+    public Map<String,Integer> getAllSectionslatest()
+    {
+    	Map<String,Integer> countAll=new HashMap<>();
+    	for(String s:myList)
+    	{
+    		countAll.put(s, countSectionlatest(s));
+    	}
+    	System.out.println(countAll);
+    	
+    	return countAll;
+    }
+    
+    
     
     public List<DBObject> getBySection(String section) {
         Query query = new Query(Criteria.where("all_sections").is(section));

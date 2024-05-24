@@ -36,17 +36,15 @@ import com.pmu.pmu.services.PostService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 
 
 
 @CrossOrigin(
-		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000" }, 
+		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://" }, 
 		maxAge = 3600, 
 		allowCredentials = "true", 
 		allowedHeaders = "*")
@@ -181,12 +179,31 @@ public class AuthController {
 			return postService.getCountOfDocumentsByPlatform();
 		}
 		
+		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getCountofPlatformlatest")
+		public List<DBObject> getCountofPlatformlatest(){
+			return postService.getCountOfDocumentsByPlatformlatest();
+		}
+		
+		
+		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getCountBySentiments")
 		public List<DBObject> getCountBySentiments(){
 			System.out.println(postService.getCountOfDocumentsBySentiment());
 			return postService.getCountOfDocumentsBySentiment();
 		}
+		
+		
+		@GetMapping("/getCountBySentimentslatest")
+		public List<DBObject> getCountBySentimentslatest(){
+			System.out.println(postService.getCountOfDocumentsBySentimentlatest());
+			return postService.getCountOfDocumentsBySentimentlatest();
+		}
+		
+		
+		
 		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getsentiments/{sentiments}")
@@ -202,6 +219,21 @@ public class AuthController {
 			postService.getAllSections();
 			return postService.getAllSections();
 		}
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getSectionsCountslatest")
+		public Map<String, Integer> getSectionsCountslatest(){
+			System.out.println(postService.getAllSectionslatest());
+		
+			return postService.getAllSectionslatest();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getbySection/{section}")
@@ -224,7 +256,7 @@ public class AuthController {
 			System.out.println(postService.getTrendingHashtags());			
 			return postService.getTrendingHashtags();
 		}
-		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getTrendingHashtags")
 		public List<Map.Entry<String, Integer>> TrendingHashtags(){
 			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();
@@ -240,6 +272,24 @@ public class AuthController {
 			
 			System.out.println(postService.getTrendingHashtags());			
 			return filteredData;
+		}
+		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getTrendingHashtagslatest")
+		public List<Map.Entry<String, Integer>> TrendingHashtagslatest(){
+			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
+			
+			newdata=postService.getTrendingHashtagsLatest();
+			List<Map.Entry<String, Integer>> filteredData = newdata.stream()
+	                .filter(entry -> entry.getValue() > 1)
+	                .collect(Collectors.toList());
+		  System.out.println("Filtered Data:");
+	        for (Map.Entry<String, Integer> entry : filteredData) {
+	            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+	        }
+		
+		System.out.println(postService.getTrendingHashtags());			
+		return filteredData;
 		}
 		
 		
@@ -294,7 +344,7 @@ public class AuthController {
 		@GetMapping("/getfromdate")
 		public List<DBObject> getfromdate(){
 		
-			return postService.getFromToDate("2024-02-04 03:31:20","2024-02-04 05:31:20");
+			return postService.getFromToDate("18-05-2024 00:00:00","24-05-2024 00:00:00");
 		}
 
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -349,24 +399,24 @@ public class AuthController {
 		    // Initialize sections list if null
 		    if(sections == null) {
 		        sections = new ArrayList<>();
-		        sections.add("Section 31b1");
-		        sections.add("Section 31b2");
-		        sections.add("Section 31b3");
-		        sections.add("Section 31b4");
-		        sections.add("Section 31b5");
-		        sections.add("Section 31b6");
-		        sections.add("Section 31b7");
-		        sections.add("Section 31b8");
-		        sections.add("Section 31b9");
-		        sections.add("Section 31b10");
-		        sections.add("Section 31b11");
+		        sections.add("31b1");
+		        sections.add("31b2");
+		        sections.add("31b3");
+		        sections.add("31b4");
+		        sections.add("31b5");
+		        sections.add("31b6");
+		        sections.add("31b7");
+		        sections.add("31b8");
+		        sections.add("31b9");
+		        sections.add("31b10");
+		        sections.add("31b11");
 		    }
 		    System.out.println(postService.getTopWords());
 		    
 		    return postService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr);
 		}
 	
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata2")
 		public List<DBObject> getAllDocuments2(){
 //			System.out.println(postService.getAllDocuments());
