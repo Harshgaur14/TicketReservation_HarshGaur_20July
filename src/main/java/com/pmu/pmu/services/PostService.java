@@ -235,6 +235,40 @@ private static final ArrayList<String> myList;
         return countsBySentiment;
     }
 
+    
+    
+    public List<DBObject> getCountOfDocumentsBySentimentlatest() {
+        
+    	LocalDateTime currentDateTime = LocalDateTime.now();
+        //7days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	
+    	
+        // Print the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        
+        // Format the current date and time
+        String formattedcurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+        Query query = new Query(dateCriteria);
+    	
+    	
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+        
+    
+    	
+    	 Aggregation aggregation = Aggregation.newAggregation(
+                 Aggregation.match(dateCriteria),
+                 Aggregation.group("sentiment").count().as("count")
+         );
+    	 
+        AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
+        List<DBObject> countsBySentiment = results.getMappedResults();
+
+        return countsBySentiment;
+    }
+    
    
    
     public int countSection(String section) {
@@ -261,6 +295,52 @@ private static final ArrayList<String> myList;
     	
     	return countAll;
     }
+    
+    
+    public int countSectionlatest(String section) {
+    	
+    	LocalDateTime currentDateTime = LocalDateTime.now();
+        //7days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	
+    	
+        // Print the current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        
+        // Format the current date and time
+        String formattedcurrentDateTime = currentDateTime.format(formatter);
+        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+        Query query = new Query(dateCriteria);
+    	
+    	
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+    	
+    	int count = 0;
+        for (DBObject document : documents) {
+            List<String> allSections = (List<String>) document.get("all_sections");
+            if (allSections != null && allSections.contains(section)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+    
+    
+    public Map<String,Integer> getAllSectionslatest()
+    {
+    	Map<String,Integer> countAll=new HashMap<>();
+    	for(String s:myList)
+    	{
+    		countAll.put(s, countSectionlatest(s));
+    	}
+    	System.out.println(countAll);
+    	
+    	return countAll;
+    }
+    
+    
     
     public List<DBObject> getBySection(String section) {
         Query query = new Query(Criteria.where("all_sections").is(section));

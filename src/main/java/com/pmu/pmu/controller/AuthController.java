@@ -149,7 +149,7 @@ public class AuthController {
 	
 		
 		
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata")
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
@@ -195,6 +195,16 @@ public class AuthController {
 			return postService.getCountOfDocumentsBySentiment();
 		}
 		
+		
+		@GetMapping("/getCountBySentimentslatest")
+		public List<DBObject> getCountBySentimentslatest(){
+			System.out.println(postService.getCountOfDocumentsBySentimentlatest());
+			return postService.getCountOfDocumentsBySentimentlatest();
+		}
+		
+		
+		
+		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getsentiments/{sentiments}")
 		public List<DBObject> getBySentiments(@PathVariable String sentiments){
@@ -202,13 +212,28 @@ public class AuthController {
 			return postService.getbySentiments(sentiments);
 		}
 		
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getSectionsCounts")
 		public Map<String, Integer> getSectionsCounts(){
 			System.out.println(postService.getAllSections());
 			postService.getAllSections();
 			return postService.getAllSections();
 		}
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getSectionsCountslatest")
+		public Map<String, Integer> getSectionsCountslatest(){
+			System.out.println(postService.getAllSectionslatest());
+		
+			return postService.getAllSectionslatest();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getbySection/{section}")
@@ -225,13 +250,13 @@ public class AuthController {
 			return postService.getDocumentsByPlatformfilter(platform);
 		}
 		
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getHashtags")
 		public List<Map.Entry<String, Integer>> Hashtags(){
 			System.out.println(postService.getTrendingHashtags());			
 			return postService.getTrendingHashtags();
 		}
-		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getTrendingHashtags")
 		public List<Map.Entry<String, Integer>> TrendingHashtags(){
 			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();
@@ -249,7 +274,7 @@ public class AuthController {
 			return filteredData;
 		}
 		
-		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getTrendingHashtagslatest")
 		public List<Map.Entry<String, Integer>> TrendingHashtagslatest(){
 			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
@@ -315,7 +340,7 @@ public class AuthController {
 		}
 	   	
 		
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getfromdate")
 		public List<DBObject> getfromdate(){
 		
@@ -374,17 +399,17 @@ public class AuthController {
 		    // Initialize sections list if null
 		    if(sections == null) {
 		        sections = new ArrayList<>();
-		        sections.add("Section 31b1");
-		        sections.add("Section 31b2");
-		        sections.add("Section 31b3");
-		        sections.add("Section 31b4");
-		        sections.add("Section 31b5");
-		        sections.add("Section 31b6");
-		        sections.add("Section 31b7");
-		        sections.add("Section 31b8");
-		        sections.add("Section 31b9");
-		        sections.add("Section 31b10");
-		        sections.add("Section 31b11");
+		        sections.add("31b1");
+		        sections.add("31b2");
+		        sections.add("31b3");
+		        sections.add("31b4");
+		        sections.add("31b5");
+		        sections.add("31b6");
+		        sections.add("31b7");
+		        sections.add("31b8");
+		        sections.add("31b9");
+		        sections.add("31b10");
+		        sections.add("31b11");
 		    }
 		    System.out.println(postService.getTopWords());
 		    
