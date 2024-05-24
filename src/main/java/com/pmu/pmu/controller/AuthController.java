@@ -36,17 +36,15 @@ import com.pmu.pmu.services.PostService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 
 
 
 @CrossOrigin(
-		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000" }, 
+		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://" }, 
 		maxAge = 3600, 
 		allowCredentials = "true", 
 		allowedHeaders = "*")
@@ -151,7 +149,7 @@ public class AuthController {
 	
 		
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata")
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
@@ -181,6 +179,15 @@ public class AuthController {
 			return postService.getCountOfDocumentsByPlatform();
 		}
 		
+		
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getCountofPlatformlatest")
+		public List<DBObject> getCountofPlatformlatest(){
+			return postService.getCountOfDocumentsByPlatformlatest();
+		}
+		
+		
+		
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getCountBySentiments")
 		public List<DBObject> getCountBySentiments(){
@@ -195,7 +202,7 @@ public class AuthController {
 			return postService.getbySentiments(sentiments);
 		}
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getSectionsCounts")
 		public Map<String, Integer> getSectionsCounts(){
 			System.out.println(postService.getAllSections());
@@ -218,7 +225,7 @@ public class AuthController {
 			return postService.getDocumentsByPlatformfilter(platform);
 		}
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getHashtags")
 		public List<Map.Entry<String, Integer>> Hashtags(){
 			System.out.println(postService.getTrendingHashtags());			
@@ -240,6 +247,24 @@ public class AuthController {
 			
 			System.out.println(postService.getTrendingHashtags());			
 			return filteredData;
+		}
+		
+		
+		@GetMapping("/getTrendingHashtagslatest")
+		public List<Map.Entry<String, Integer>> TrendingHashtagslatest(){
+			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
+			
+			newdata=postService.getTrendingHashtagsLatest();
+			List<Map.Entry<String, Integer>> filteredData = newdata.stream()
+	                .filter(entry -> entry.getValue() > 1)
+	                .collect(Collectors.toList());
+		  System.out.println("Filtered Data:");
+	        for (Map.Entry<String, Integer> entry : filteredData) {
+	            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+	        }
+		
+		System.out.println(postService.getTrendingHashtags());			
+		return filteredData;
 		}
 		
 		
@@ -290,11 +315,11 @@ public class AuthController {
 		}
 	   	
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getfromdate")
 		public List<DBObject> getfromdate(){
 		
-			return postService.getFromToDate("2024-02-04 03:31:20","2024-02-04 05:31:20");
+			return postService.getFromToDate("18-05-2024 00:00:00","24-05-2024 00:00:00");
 		}
 
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -366,7 +391,7 @@ public class AuthController {
 		    return postService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr);
 		}
 	
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata2")
 		public List<DBObject> getAllDocuments2(){
 //			System.out.println(postService.getAllDocuments());
