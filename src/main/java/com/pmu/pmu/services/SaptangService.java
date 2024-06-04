@@ -16,64 +16,67 @@ import org.springframework.stereotype.Service;
 import com.mongodb.DBObject;
 
 @Service
-public class EvidhurService {
+public class SaptangService {
 
+	
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
 	
 	
-	public List<DBObject> getAllDocuments2(){
+	public List<DBObject> getAllData(){
 		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"evidhur");
+		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"saptang");
 		return documents;
 	}
-	
+
+
 	public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
 			List<String> languages, String startDateStr, String endDateStr, List<String> intensity) {
 		 List<DBObject> documents=null;
     	 if(startDateStr!=null&&endDateStr!=null) {
-	        	
     		 
     		 try {
-    		        
-    	          
-    	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+ 		        
+   	          
+ 	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    	            // Create query to retrieve documents between startDate and endDate
-    	        	  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+ 	            // Create query to retrieve documents between startDate and endDate
+ 	        	  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
 
-    	              // Parse the date strings into Date objects
-    	              Date startDate = dateFormat.parse(startDateStr);
-    	              Date endDate = dateFormat.parse(endDateStr);
+ 	              // Parse the date strings into Date objects
+ 	              Date startDate = dateFormat.parse(startDateStr);
+ 	              Date endDate = dateFormat.parse(endDateStr);
 
-    	              // Create query to retrieve documents between startDate and endDate
-    	              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
+ 	              // Create query to retrieve documents between startDate and endDate
+ 	              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
 
-    	              // Execute query and retrieve documents
-    	              documents = mongoTemplate.find(query, DBObject.class, "evidhur");
-    	              System.out.println(documents);
-//    	              return documents;
-    	        } catch (Exception e) {
-    	            // Handle any exceptions
-    	            e.printStackTrace();
-//    	            return null;
-    	        }
+ 	              // Execute query and retrieve documents
+ 	              documents = mongoTemplate.find(query, DBObject.class, "saptang");
+ 	              System.out.println(documents);
+// 	              return documents;
+ 	        } catch (Exception e) {
+ 	            // Handle any exceptions
+ 	            e.printStackTrace();
+// 	            return null;
+ 	        }
     		 
     		 
     		 
     		 
+    		 
+//	        	
 //    		 Criteria dateCriteria = Criteria.where("datetime").gte(startDateStr).lte(endDateStr);
 //    	        Query query = new Query(dateCriteria);
 //    	    	
 //    	    	
-//    	         documents = mongoTemplate.find(query, DBObject.class, "evidhur");
+//    	         documents = mongoTemplate.find(query, DBObject.class, "saptang");
 //    		 System.out.println(documents);
     		 
 			}else
 			{
 				Query query=new BasicQuery("{}");
-				 documents=mongoTemplate.find(query,DBObject.class,"evidhur");
+				 documents=mongoTemplate.find(query,DBObject.class,"saptang");
 				 System.out.println(documents);
 			}
     	
@@ -105,7 +108,7 @@ public class EvidhurService {
 	                    .filter(doc -> intensity.contains(doc.get("intensity")))
 	                    .collect(Collectors.toList());
 	        }
-		// System.out.println("after sentiments"+documents);
+		 
 		 
 		 
 		 if (languages != null && !languages.isEmpty()) {
@@ -113,6 +116,10 @@ public class EvidhurService {
 	                    .filter(doc -> languages.contains(doc.get("languages")))
 	                    .collect(Collectors.toList());
 	        }
+		 
+		 
+		 
+		// System.out.println("after sentiments"+documents);
 		 
 		 if (sections != null && !sections.isEmpty()) {
 	            documents = documents.stream()
@@ -128,7 +135,4 @@ public class EvidhurService {
 		
 		return documents;
 	}
-	
-	
-	
 }

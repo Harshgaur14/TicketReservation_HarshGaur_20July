@@ -1,12 +1,16 @@
 package com.pmu.pmu.services;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -49,7 +53,7 @@ private static final ArrayList<String> myList;
 	
 	public List<DBObject> getAllDocuments(){
 		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"posts");
+		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"datetime");
 		return documents;
 	}
 	
@@ -87,33 +91,43 @@ private static final ArrayList<String> myList;
     	//current date 
     	LocalDateTime currentDateTime = LocalDateTime.now();
         //7days before date
-    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(3);
     	
     	
         // Print the current date and time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
         
         // Format the current date and time
-        String formattedcurrentDateTime = currentDateTime.format(formatter);
-        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        String endDateStr = currentDateTime.format(formatter);
+        String startDateStr= lastWeekDateTime.format(formatter);
         // Print the formatted date and time
-        System.out.println("Formatted Date and Time: " + formattedcurrentDateTime);
-        System.out.println("Last Week Date and Time: " + formattedLastWeekDateTime);
-    	
-        
-        
-        
-        
-        
-        
+        System.out.println("current Date and Time: " + endDateStr);
+        System.out.println("Last Week Date and Time: " + startDateStr);
+       
         try {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+        // Parse the date strings into Date objects
+        Date startDate = dateFormat.parse(startDateStr);
+        Date endDate = dateFormat.parse(endDateStr);
+        
+        
+        
+        
+        
+       
             // Create query to retrieve documents between startDate and endDate
-            Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
+            Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
             Query query = new Query(dateCriteria);
 
             // Execute query and retrieve documents
             List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
-
+            
+            
+           // System.out.println("data is "+documents);
             // Create aggregation to count documents by platform within the date interval
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(dateCriteria),
@@ -150,26 +164,49 @@ private static final ArrayList<String> myList;
     
     
  public List<Map.Entry<String, Integer>> getTrendingHashtagsLatest() {
-        
+	 List<DBObject> documents=null;
         // Current date
         LocalDateTime currentDateTime = LocalDateTime.now();
         // 7 days before date
         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
 
         // Format the current date and time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        String formattedCurrentDateTime = currentDateTime.format(formatter);
-        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        System.out.println("Formatted Date and Time: " + formattedCurrentDateTime);
-        System.out.println("Last Week Date and Time: " + formattedLastWeekDateTime);
+        String endDateStr = currentDateTime.format(formatter);
+        String startDateStr= lastWeekDateTime.format(formatter);
+        System.out.println("current Date and Time: " + endDateStr);
+        System.out.println("Last Week Date and Time: " + startDateStr);
 
         // Fetch documents based on date criteria
-        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedCurrentDateTime);
-        Query query = new Query(dateCriteria);
-        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
-        System.out.println(documents);
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+            // Parse the date strings into Date objects
+            Date startDate = dateFormat.parse(startDateStr);
+            Date endDate = dateFormat.parse(endDateStr);
+            
+            
+            
+            
+            
+           
+                // Create query to retrieve documents between startDate and endDate
+                Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
+                Query query = new Query(dateCriteria);
+       
+         documents = mongoTemplate.find(query, DBObject.class, "posts");
+     
+
+        } catch (Exception e) {
+	            // Handle any exceptions
+	            e.printStackTrace();
+//	            return null;
+	        }
+        
+        
         // Process documents to extract and count hashtags
         Map<String, Integer> hashtagCountMap = new HashMap<>();
         for (DBObject document : documents) {
@@ -239,34 +276,59 @@ private static final ArrayList<String> myList;
     
     public List<DBObject> getCountOfDocumentsBySentimentlatest() {
         
-    	LocalDateTime currentDateTime = LocalDateTime.now();
-        //7days before date
-    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
-    	
-    	
-        // Print the current date and time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        
-        // Format the current date and time
-        String formattedcurrentDateTime = currentDateTime.format(formatter);
-        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
-        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
-        Query query = new Query(dateCriteria);
-    	
-    	
-        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
-        
-    
-    	
-    	 Aggregation aggregation = Aggregation.newAggregation(
-                 Aggregation.match(dateCriteria),
-                 Aggregation.group("sentiment").count().as("count")
-         );
-    	 
-        AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
-        List<DBObject> countsBySentiment = results.getMappedResults();
+    	 List<DBObject> documents=null;
+         // Current date
+         LocalDateTime currentDateTime = LocalDateTime.now();
+         // 7 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
 
-        return countsBySentiment;
+         // Format the current date and time
+         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+         String endDateStr = currentDateTime.format(formatter);
+         String startDateStr= lastWeekDateTime.format(formatter);
+         System.out.println("current Date and Time: " + endDateStr);
+         System.out.println("Last Week Date and Time: " + startDateStr);
+
+         // Fetch documents based on date criteria
+         try {
+             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+             // Parse the date strings into Date objects
+             Date startDate = dateFormat.parse(startDateStr);
+             Date endDate = dateFormat.parse(endDateStr);
+             
+             
+             
+             
+             
+            
+                 // Create query to retrieve documents between startDate and endDate
+                 Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
+                 Query query = new Query(dateCriteria);
+        
+          documents = mongoTemplate.find(query, DBObject.class, "posts");
+      
+          Aggregation aggregation = Aggregation.newAggregation(
+                  Aggregation.match(dateCriteria),
+                  Aggregation.group("sentiment").count().as("count")
+          );
+     	 
+         AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
+         List<DBObject> countsBySentiment = results.getMappedResults();
+         System.out.println(countsBySentiment);
+         return countsBySentiment;
+         } catch (Exception e) {
+ 	            // Handle any exceptions
+ 	            e.printStackTrace();
+// 	            return null;
+ 	        }
+    	
+    	
+
+        return null;
     }
     
    
@@ -299,22 +361,47 @@ private static final ArrayList<String> myList;
     
     public int countSectionlatest(String section) {
     	
-    	LocalDateTime currentDateTime = LocalDateTime.now();
-        //7days before date
-    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
-    	
-    	
-        // Print the current date and time
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    	 List<DBObject> documents=null;
+         // Current date
+         LocalDateTime currentDateTime = LocalDateTime.now();
+         // 7 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+
+         // Format the current date and time
+         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+         String endDateStr = currentDateTime.format(formatter);
+         String startDateStr= lastWeekDateTime.format(formatter);
+         System.out.println("current Date and Time: " + endDateStr);
+         System.out.println("Last Week Date and Time: " + startDateStr);
+
+         // Fetch documents based on date criteria
+         try {
+             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+             // Parse the date strings into Date objects
+             Date startDate = dateFormat.parse(startDateStr);
+             Date endDate = dateFormat.parse(endDateStr);
+             
+             
+             
+             
+             
+            
+                 // Create query to retrieve documents between startDate and endDate
+                 Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
+                 Query query = new Query(dateCriteria);
         
-        // Format the current date and time
-        String formattedcurrentDateTime = currentDateTime.format(formatter);
-        String formattedLastWeekDateTime = lastWeekDateTime.format(formatter);
-        Criteria dateCriteria = Criteria.where("datetime").gte(formattedLastWeekDateTime).lte(formattedcurrentDateTime);
-        Query query = new Query(dateCriteria);
-    	
-    	
-        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+          documents = mongoTemplate.find(query, DBObject.class, "posts");
+      
+
+         } catch (Exception e) {
+ 	            // Handle any exceptions
+ 	            e.printStackTrace();
+// 	            return null;
+ 	        }
     	
     	int count = 0;
         for (DBObject document : documents) {
@@ -392,14 +479,22 @@ private static final ArrayList<String> myList;
         try {
         
           
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
             // Create query to retrieve documents between startDate and endDate
-            Query query = new Query(Criteria.where("datetime").gte(startDateStr).lte(endDateStr));
+        	  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
 
-            // Execute query and retrieve documents
-            List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+              // Parse the date strings into Date objects
+              Date startDate = dateFormat.parse(startDateStr);
+              Date endDate = dateFormat.parse(endDateStr);
 
-            return documents;
+              // Create query to retrieve documents between startDate and endDate
+              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
+
+              // Execute query and retrieve documents
+              List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "datetime");
+
+              return documents;
         } catch (Exception e) {
             // Handle any exceptions
             e.printStackTrace();
@@ -408,77 +503,112 @@ private static final ArrayList<String> myList;
     }
     
     public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
-    		List<String> languages,String startDateStr, String endDateStr) {
+    		List<String> languages,String startDateStr, String endDateStr,List<String> intensity) {
         
-    	System.out.println(platforms);
-    	System.out.println(sections);
-    	System.out.println(sentiments);
-    	System.out.println(languages);
+//    	System.out.println(platforms);
+    	System.out.println("--"+sections);
+//    	System.out.println(sentiments);
+//    	System.out.println(languages);
     	System.out.println(startDateStr);
     	System.out.println(endDateStr);
     	
-    	// Query to filter documents based on platforms
-        Query platformQuery = new Query(Criteria.where("platform").in(platforms));
-        List<DBObject> documents = mongoTemplate.find(platformQuery, DBObject.class, "posts");
+    	 List<DBObject> documents=null;
+    	 if(startDateStr!=null&&endDateStr!=null) {
+    		 
+    		 try {
+  		        
+      	          
+  	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        // If no documents found for the given platforms, return empty list
-        if (documents.isEmpty()) {
-            return Collections.emptyList();
+  	            // Create query to retrieve documents between startDate and endDate
+  	        	  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+  	              // Parse the date strings into Date objects
+  	              Date startDate = dateFormat.parse(startDateStr);
+  	              Date endDate = dateFormat.parse(endDateStr);
+
+  	              // Create query to retrieve documents between startDate and endDate
+  	              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
+
+  	              // Execute query and retrieve documents
+  	              documents = mongoTemplate.find(query, DBObject.class, "posts");
+  	              System.out.println(documents);
+//  	              return documents;
+  	        } catch (Exception e) {
+  	            // Handle any exceptions
+  	            e.printStackTrace();
+//  	            return null;
+  	        }
+    		 
+    		 
+//    		 
+//	        	
+//    		 Criteria dateCriteria = Criteria.where("datetime").gte(startDateStr).lte(endDateStr);
+//    	        Query query = new Query(dateCriteria);
+//    	    	
+//    	    	
+//    	         documents = mongoTemplate.find(query, DBObject.class, "posts");
+//    		 System.out.println(documents);
+    		 
+			}else
+			{
+				Query query=new BasicQuery("{}");
+				 documents=mongoTemplate.find(query,DBObject.class,"posts");
+				 System.out.println(documents);
+			}
+    	
+    	
+    	
+    	
+    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
+    			
+    		
+		if (platforms != null && !platforms.isEmpty() ) {
+            System.out.println("Filtering by platforms: " + platforms);
+            documents = documents.stream()
+                    .filter(doc -> platforms.contains(doc.get("platform")))
+                    .collect(Collectors.toList());
         }
+    		}
 
-        // Combine sentiment criteria using OR operator
-        List<Criteria> sentimentCriteriaList = new ArrayList<>();
-        for (String sentiment : sentiments) {
-            sentimentCriteriaList.add(Criteria.where("sentiment").is(sentiment));
-        }
-        Criteria sentimentCriteria = new Criteria().orOperator(sentimentCriteriaList.toArray(new Criteria[0]));
+		 
+		
+		 if (sentiments != null && !sentiments.isEmpty()) {
+	            documents = documents.stream()
+	                    .filter(doc -> sentiments.contains(doc.get("sentiment")))
+	                    .collect(Collectors.toList());
+	        }
+		 
+		 
+		 if (intensity != null && !intensity.isEmpty()) {
+	            documents = documents.stream()
+	                    .filter(doc -> intensity.contains(doc.get("intensity")))
+	                    .collect(Collectors.toList());
+	        }
+		// System.out.println("after sentiments"+documents);
+////		 
+//		 if (languages != null && !languages.isEmpty()) {
+//	            documents = documents.stream()
+//	                    .filter(doc -> languages.contains(doc.get("languages")))
+//	                    .collect(Collectors.toList());
+//	        }
+		 
+		 if (sections != null && !sections.isEmpty()) {
+	            documents = documents.stream()
+	                    .filter(doc -> {
+	                        List<String> allSections = (List<String>) doc.get("all_sections");
+	                        return allSections != null && allSections.stream().anyMatch(sections::contains);
+	                    })
+	                    .collect(Collectors.toList());
+	        }
+		 //System.out.println("after sections"+documents);
+		
 
-        // Combine language criteria using OR operator
-        List<Criteria> languageCriteriaList = new ArrayList<>();
-        for (String language : languages) {
-            languageCriteriaList.add(Criteria.where("language").is(language));
-        }
-        Criteria languageCriteria = new Criteria().orOperator(languageCriteriaList.toArray(new Criteria[0]));
-
-        // Combine section criteria using OR operator
-        List<Criteria> sectionCriteriaList = new ArrayList<>();
-        for (String section : sections) {
-            sectionCriteriaList.add(Criteria.where("all_sections").in(section)); // Assuming "all_sections" is the correct field name
-        }
-        Criteria sectionCriteria = new Criteria().orOperator(sectionCriteriaList.toArray(new Criteria[0]));
-
-        
-        if(startDateStr==null&&endDateStr==null) {
-        	Criteria combinedCriteria = new Criteria().andOperator(
-                    Criteria.where("platform").in(platforms),
-                    sentimentCriteria,
-                    sectionCriteria,
-                    languageCriteria );
-        	 // Filter documents based on combined criteria
-            Query combinedQuery = new Query(combinedCriteria);
-            List<DBObject> filteredDocuments = mongoTemplate.find(combinedQuery, DBObject.class, "posts");
-            System.out.println("working date null");
-            return filteredDocuments;
-		}
-        
-        
-        Criteria dateCriteria = Criteria.where("datetime").gte(startDateStr).lte(endDateStr);
-        
-        // Combine all criteria using AND operator
-        Criteria combinedCriteria = new Criteria().andOperator(
-                Criteria.where("platform").in(platforms),
-                sentimentCriteria,
-                sectionCriteria,
-                languageCriteria,
-                dateCriteria
-        );
-
-        // Filter documents based on combined criteria
-        Query combinedQuery = new Query(combinedCriteria);
-        List<DBObject> filteredDocuments = mongoTemplate.find(combinedQuery, DBObject.class, "posts");
-        System.out.println("working date not null");
-        return filteredDocuments;
+		
+		return documents;
+    
     }
+
 
     	
     
@@ -507,7 +637,16 @@ private static final ArrayList<String> myList;
     }
     
 
+    public List<DBObject> getIntensity() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.group("intensity").count().as("count")
+        );
 
+        AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
+        List<DBObject> countsByIntensity = results.getMappedResults();
+
+        return countsByIntensity;
+    }
   
     
 }
