@@ -35,25 +35,36 @@ public class PostService{
 private static final ArrayList<String> myList;
 	
 	static {
-		myList=new ArrayList<>();
-		 myList.add("31b1");
-	        myList.add("31b2");
-	        myList.add("31b3");
-	        myList.add("31b4");
-	        myList.add("31b5");
-	        myList.add("31b6");
-	        myList.add("31b7");
-	        myList.add("31b8");
-	        myList.add("31b9");
+		 myList=new ArrayList<>();
+		 myList.add("3(1)b(I)");
+	        myList.add("3(1)b(II)");
+	        myList.add("3(1)b(III)");
+	        myList.add("3(1)b(IV)");
+	        myList.add("3(1)b(V)");
+	        myList.add("3(1)b(VI)");
+	        myList.add("3(1)b(VII)");
+	        myList.add("3(1)b(VIII)");
+	        myList.add("3(1)b(IX)");
 
-	        myList.add("31b10");
-	        myList.add("31b11");
+	        myList.add("3(1)b(X)");
+	        myList.add("3(1)b(XI)");
 	}
 	
 	
 	public List<DBObject> getAllDocuments(){
 		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"datetime");
+		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"posts");
+		List<String> sentimentlist=new ArrayList<>();
+		sentimentlist.add("negative");
+		sentimentlist.add("neutral");
+		
+		 if (sentimentlist != null && !sentimentlist.isEmpty()) {
+	            documents = documents.stream()
+	            		.filter(doc -> sentimentlist.contains(doc.get("sentiment")) &&
+                             doc.containsField("all_sections"))
+              .collect(Collectors.toList());
+	        }
+		
 		return documents;
 	}
 	
@@ -85,26 +96,32 @@ private static final ArrayList<String> myList;
     }
     
     
-    //last 7 days count
-    public List<DBObject> getCountOfDocumentsByPlatformlatest() {
+    //last 6 days count
+    public List<DBObject> getCountOfDocumentsByPlatformlatest( String startDateStr, String endDateStr) {
     	
     	//current date 
     	LocalDateTime currentDateTime = LocalDateTime.now();
-        //7days before date
-    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(3);
+        //6days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
     	
     	
         // Print the current date and time
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        
+    	 if(startDateStr==null&&endDateStr==null) {
         // Format the current date and time
-        String endDateStr = currentDateTime.format(formatter);
-        String startDateStr= lastWeekDateTime.format(formatter);
+        String newendDateStr = currentDateTime.format(formatter);
+        String newstartDateStr= lastWeekDateTime.format(formatter);
         // Print the formatted date and time
+        endDateStr=newendDateStr;
+        startDateStr=newstartDateStr;
+        
+    	 }
         System.out.println("current Date and Time: " + endDateStr);
         System.out.println("Last Week Date and Time: " + startDateStr);
        
+        
+        
         try {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -137,7 +154,7 @@ private static final ArrayList<String> myList;
             // Execute aggregation and retrieve counts by platform within the date interval
             AggregationResults<DBObject> results = mongoTemplate.aggregate(aggregation, "posts", DBObject.class);
             List<DBObject> countsByPlatform = results.getMappedResults();
-
+            
             return countsByPlatform;
         } catch (Exception e) {
             // Handle any exceptions
@@ -163,18 +180,26 @@ private static final ArrayList<String> myList;
     
     
     
- public List<Map.Entry<String, Integer>> getTrendingHashtagsLatest() {
+ public List<Map.Entry<String, Integer>> getTrendingHashtagsLatest(String startDateStr, String endDateStr) {
 	 List<DBObject> documents=null;
         // Current date
         LocalDateTime currentDateTime = LocalDateTime.now();
-        // 7 days before date
-        LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+        // 6 days before date
+        LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
 
         // Format the current date and time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        String endDateStr = currentDateTime.format(formatter);
-        String startDateStr= lastWeekDateTime.format(formatter);
+        if(startDateStr==null&&endDateStr==null) {
+            // Format the current date and time
+            String newendDateStr = currentDateTime.format(formatter);
+            String newstartDateStr= lastWeekDateTime.format(formatter);
+            // Print the formatted date and time
+            endDateStr=newendDateStr;
+            startDateStr=newstartDateStr;
+            
+        	 }
+
         System.out.println("current Date and Time: " + endDateStr);
         System.out.println("Last Week Date and Time: " + startDateStr);
 
@@ -198,7 +223,8 @@ private static final ArrayList<String> myList;
                 Query query = new Query(dateCriteria);
        
          documents = mongoTemplate.find(query, DBObject.class, "posts");
-     
+         
+       
 
         } catch (Exception e) {
 	            // Handle any exceptions
@@ -223,8 +249,9 @@ private static final ArrayList<String> myList;
         // Sort hashtags by count in descending order
         List<Map.Entry<String, Integer>> sortedHashtags = new ArrayList<>(hashtagCountMap.entrySet());
         sortedHashtags.sort((a, b) -> b.getValue().compareTo(a.getValue()));
-
+ 
         // Return all hashtags with counts
+        System.out.println(sortedHashtags);
         return sortedHashtags;
     }
     
@@ -274,19 +301,27 @@ private static final ArrayList<String> myList;
 
     
     
-    public List<DBObject> getCountOfDocumentsBySentimentlatest() {
+    public List<DBObject> getCountOfDocumentsBySentimentlatest(String startDateStr, String endDateStr) {
         
     	 List<DBObject> documents=null;
          // Current date
          LocalDateTime currentDateTime = LocalDateTime.now();
-         // 7 days before date
-         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+         // 6 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
 
          // Format the current date and time
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-         String endDateStr = currentDateTime.format(formatter);
-         String startDateStr= lastWeekDateTime.format(formatter);
+         if(startDateStr==null&&endDateStr==null) {
+             // Format the current date and time
+             String newendDateStr = currentDateTime.format(formatter);
+             String newstartDateStr= lastWeekDateTime.format(formatter);
+             // Print the formatted date and time
+             endDateStr=newendDateStr;
+             startDateStr=newstartDateStr;
+             
+         	 }
+
          System.out.println("current Date and Time: " + endDateStr);
          System.out.println("Last Week Date and Time: " + startDateStr);
 
@@ -359,19 +394,27 @@ private static final ArrayList<String> myList;
     }
     
     
-    public int countSectionlatest(String section) {
+    public int countSectionlatest(String section,String startDateStr, String endDateStr) {
     	
     	 List<DBObject> documents=null;
          // Current date
          LocalDateTime currentDateTime = LocalDateTime.now();
-         // 7 days before date
-         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(7);
+         // 6 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
 
          // Format the current date and time
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-         String endDateStr = currentDateTime.format(formatter);
-         String startDateStr= lastWeekDateTime.format(formatter);
+         if(startDateStr==null&&endDateStr==null) {
+             // Format the current date and time
+             String newendDateStr = currentDateTime.format(formatter);
+             String newstartDateStr= lastWeekDateTime.format(formatter);
+             // Print the formatted date and time
+             endDateStr=newendDateStr;
+             startDateStr=newstartDateStr;
+             
+         	 }
+
          System.out.println("current Date and Time: " + endDateStr);
          System.out.println("Last Week Date and Time: " + startDateStr);
 
@@ -415,12 +458,12 @@ private static final ArrayList<String> myList;
     }
     
     
-    public Map<String,Integer> getAllSectionslatest()
+    public Map<String,Integer> getAllSectionslatest(String startDateStr, String endDateStr)
     {
     	Map<String,Integer> countAll=new HashMap<>();
     	for(String s:myList)
     	{
-    		countAll.put(s, countSectionlatest(s));
+    		countAll.put(s, countSectionlatest(s,startDateStr,endDateStr));
     	}
     	System.out.println(countAll);
     	
@@ -575,10 +618,28 @@ private static final ArrayList<String> myList;
 		
 		 if (sentiments != null && !sentiments.isEmpty()) {
 	            documents = documents.stream()
-	                    .filter(doc -> sentiments.contains(doc.get("sentiment")))
-	                    .collect(Collectors.toList());
+	            		.filter(doc -> sentiments.contains(doc.get("sentiment")) &&
+                                doc.containsField("all_sections"))
+                 .collect(Collectors.toList());
+	          
+	        }else {
+	        	
+	        	List<String> sentimentlist=new ArrayList<>();
+	    		sentimentlist.add("negative");
+	    		sentimentlist.add("neutral");
+	    		
+	    		 if (sentimentlist != null && !sentimentlist.isEmpty()) {
+	    	            documents = documents.stream()
+	    	            		.filter(doc -> sentimentlist.contains(doc.get("sentiment")) &&
+	                                 doc.containsField("all_sections"))
+	                  .collect(Collectors.toList());
+	    	        }
+	    		 
+	        	
+	        	
 	        }
 		 
+		
 		 
 		 if (intensity != null && !intensity.isEmpty()) {
 	            documents = documents.stream()
@@ -603,7 +664,7 @@ private static final ArrayList<String> myList;
 	        }
 		 //System.out.println("after sections"+documents);
 		
-
+		 System.out.println("working fine------");
 		
 		return documents;
     
@@ -646,6 +707,22 @@ private static final ArrayList<String> myList;
         List<DBObject> countsByIntensity = results.getMappedResults();
 
         return countsByIntensity;
+    }
+    
+    
+    public List<DBObject> getsenfilter(List<String> sentiments) {
+        Query query = new BasicQuery("{}");
+        List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+
+        if (sentiments != null && !sentiments.isEmpty()) {
+            documents = documents.stream()
+                    .filter(doc -> sentiments.contains(doc.get("sentiment")) &&
+                                   doc.containsField("all_sections"))
+                    .collect(Collectors.toList());
+        }
+
+        System.out.println(documents);
+        return documents;
     }
   
     

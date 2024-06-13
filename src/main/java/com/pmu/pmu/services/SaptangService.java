@@ -1,6 +1,7 @@
 package com.pmu.pmu.services;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -100,6 +101,18 @@ public class SaptangService {
 	            documents = documents.stream()
 	                    .filter(doc -> sentiments.contains(doc.get("sentiment")))
 	                    .collect(Collectors.toList());
+	        }else {
+	        	List<String> sentimentlist=new ArrayList<>();
+	    		sentimentlist.add("negative");
+	    		sentimentlist.add("neutral");
+	    		
+	    		 if (sentimentlist != null && !sentimentlist.isEmpty()) {
+	    	            documents = documents.stream()
+	    	            		.filter(doc -> sentimentlist.contains(doc.get("sentiment")) &&
+	                                 doc.containsField("all_sections"))
+	                  .collect(Collectors.toList());
+	    	        }
+	    		 
 	        }
 		 
 		 

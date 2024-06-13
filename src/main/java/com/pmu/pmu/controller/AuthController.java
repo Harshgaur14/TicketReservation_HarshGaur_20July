@@ -45,7 +45,7 @@ import jakarta.validation.Valid;
 
 
 @CrossOrigin(
-		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://10.226.48.52:3000" }, 
+		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://10.226.48.52:3000","http://10.226.39.57:3001" }, 
 		maxAge = 3600, 
 		allowCredentials = "true", 
 		allowedHeaders = "*")
@@ -150,7 +150,7 @@ public class AuthController {
 	
 		
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata")
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
@@ -183,8 +183,10 @@ public class AuthController {
 		
 		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getCountofPlatformlatest")
-		public List<DBObject> getCountofPlatformlatest(){
-			return postService.getCountOfDocumentsByPlatformlatest();
+		public List<DBObject> getCountofPlatformlatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+		
+			return postService.getCountOfDocumentsByPlatformlatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -198,9 +200,10 @@ public class AuthController {
 		
 		
 		@GetMapping("/getCountBySentimentslatest")
-		public List<DBObject> getCountBySentimentslatest(){
+		public List<DBObject> getCountBySentimentslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
 			//System.out.println(postService.getCountOfDocumentsBySentimentlatest());
-			return postService.getCountOfDocumentsBySentimentlatest();
+			return postService.getCountOfDocumentsBySentimentlatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -222,10 +225,11 @@ public class AuthController {
 		}
 		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getSectionsCountslatest")
-		public Map<String, Integer> getSectionsCountslatest(){
-			System.out.println(postService.getAllSectionslatest());
+		public Map<String, Integer> getSectionsCountslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+			System.out.println(postService.getAllSectionslatest(startDateStr,endDateStr));
 		
-			return postService.getAllSectionslatest();
+			return postService.getAllSectionslatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -277,10 +281,12 @@ public class AuthController {
 		
 	//	@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getTrendingHashtagslatest")
-		public List<Map.Entry<String, Integer>> TrendingHashtagslatest(){
+		public List<Map.Entry<String, Integer>> TrendingHashtagslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
 			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
 			
-			newdata=postService.getTrendingHashtagsLatest();
+			newdata=postService.getTrendingHashtagsLatest(startDateStr,endDateStr);
+			System.out.println("hey"+newdata);
 			List<Map.Entry<String, Integer>> filteredData = newdata.stream()
 	                .filter(entry -> entry.getValue() > 1)
 	                .collect(Collectors.toList());
@@ -288,8 +294,8 @@ public class AuthController {
 	        for (Map.Entry<String, Integer> entry : filteredData) {
 	            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
 	        }
-		
-		System.out.println(postService.getTrendingHashtags());			
+	        System.out.println(filteredData);
+//		System.out.println(postService.getTrendingHashtags());			
 		return filteredData;
 		}
 		
@@ -447,6 +453,19 @@ public class AuthController {
 		        
 		    ){
 			 return evidhurService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity);
+			
+		}
+		
+		
+		@GetMapping("/sentimentsfilter")
+		public List<DBObject> senfilter()
+		{
+			ArrayList<String> newarr=new ArrayList<>();
+			newarr.add("negative");
+//			newarr.add("neutral");
+			System.out.println(postService.getsenfilter(newarr));
+			
+			return postService.getsenfilter(newarr);
 			
 		}
 		
