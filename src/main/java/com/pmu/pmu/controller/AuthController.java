@@ -33,6 +33,7 @@ import com.pmu.pmu.payload.token.TokenBlacklist;
 import com.pmu.pmu.security.jwt.JwtUtils;
 import com.pmu.pmu.services.EvidhurService;
 import com.pmu.pmu.services.PostService;
+import com.pmu.pmu.services.SaptangService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
 
@@ -44,7 +45,7 @@ import jakarta.validation.Valid;
 
 
 @CrossOrigin(
-		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://" }, 
+		origins = { "http://10.226.49.255:3000","http://localhost:3001","http://localhost:3000","http://10.226.39.57:3000","http://10.226.48.52:3000","http://10.226.39.57:3001" }, 
 		maxAge = 3600, 
 		allowCredentials = "true", 
 		allowedHeaders = "*")
@@ -149,7 +150,7 @@ public class AuthController {
 	
 		
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata")
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
@@ -180,10 +181,12 @@ public class AuthController {
 		}
 		
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getCountofPlatformlatest")
-		public List<DBObject> getCountofPlatformlatest(){
-			return postService.getCountOfDocumentsByPlatformlatest();
+		public List<DBObject> getCountofPlatformlatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+		
+			return postService.getCountOfDocumentsByPlatformlatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -197,9 +200,10 @@ public class AuthController {
 		
 		
 		@GetMapping("/getCountBySentimentslatest")
-		public List<DBObject> getCountBySentimentslatest(){
-			System.out.println(postService.getCountOfDocumentsBySentimentlatest());
-			return postService.getCountOfDocumentsBySentimentlatest();
+		public List<DBObject> getCountBySentimentslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+			//System.out.println(postService.getCountOfDocumentsBySentimentlatest());
+			return postService.getCountOfDocumentsBySentimentlatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -219,12 +223,13 @@ public class AuthController {
 			postService.getAllSections();
 			return postService.getAllSections();
 		}
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getSectionsCountslatest")
-		public Map<String, Integer> getSectionsCountslatest(){
-			System.out.println(postService.getAllSectionslatest());
+		public Map<String, Integer> getSectionsCountslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+			System.out.println(postService.getAllSectionslatest(startDateStr,endDateStr));
 		
-			return postService.getAllSectionslatest();
+			return postService.getAllSectionslatest(startDateStr,endDateStr);
 		}
 		
 		
@@ -274,12 +279,14 @@ public class AuthController {
 			return filteredData;
 		}
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+	//	@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getTrendingHashtagslatest")
-		public List<Map.Entry<String, Integer>> TrendingHashtagslatest(){
+		public List<Map.Entry<String, Integer>> TrendingHashtagslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
 			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
 			
-			newdata=postService.getTrendingHashtagsLatest();
+			newdata=postService.getTrendingHashtagsLatest(startDateStr,endDateStr);
+			System.out.println("hey"+newdata);
 			List<Map.Entry<String, Integer>> filteredData = newdata.stream()
 	                .filter(entry -> entry.getValue() > 1)
 	                .collect(Collectors.toList());
@@ -287,8 +294,8 @@ public class AuthController {
 	        for (Map.Entry<String, Integer> entry : filteredData) {
 	            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
 	        }
-		
-		System.out.println(postService.getTrendingHashtags());			
+	        System.out.println(filteredData);
+//		System.out.println(postService.getTrendingHashtags());			
 		return filteredData;
 		}
 		
@@ -340,11 +347,14 @@ public class AuthController {
 		}
 	   	
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getfromdate")
 		public List<DBObject> getfromdate(){
 		
-			return postService.getFromToDate("18-05-2024 00:00:00","24-05-2024 00:00:00");
+//			postService.getFromToDate("2024-05-22T00:00:00Z", "2024-06-02T00:00:00Z");
+		return	postService.getFromToDate("2024-05-22T00:00:00Z", "2024-06-02T00:00:00Z");
+			
+		//	return postService.getFromToDate("22-05-2024 00:00:00","02-06-2024 00:00:00");
 		}
 
 		@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -353,7 +363,7 @@ public class AuthController {
 			return postService.getCountByLaw();
 		}
 		
-		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		//@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/filter")
 		public List<DBObject> filterPosts(
 		        @RequestParam(value = "platforms", required = false) List<String> platforms,
@@ -361,25 +371,12 @@ public class AuthController {
 		        @RequestParam(value = "sentiments", required = false) List<String> sentiments,
 		        @RequestParam(value = "languages", required = false) List<String> languages
 		       , @RequestParam(value = "startDateStr", required = false) String startDateStr,
-		        @RequestParam(value = "endDateStr", required = false) String endDateStr
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "intensity", required = false) List<String> intensity
+		        
 		    ) {		
-		    // Initialize platforms list if null
-		    if(platforms == null) {
-		        platforms = new ArrayList<>();
-		        platforms.add("FACEBOOK");
-		        platforms.add("INSTAGRAM");
-		        platforms.add("YOUTUBE");
-		        platforms.add("KOO");
-		        platforms.add("others");
-		    }
-		    
-		    // Initialize sentiments list if null
-		    if(sentiments == null) {
-		        sentiments = new ArrayList<>();
-		        sentiments.add("negative");
-		        sentiments.add("neutral");
-		        sentiments.add("positive");
-		    }
+
+		
 		    
 		    // Initialize languages list if null
 		    if(languages == null) {
@@ -397,26 +394,11 @@ public class AuthController {
 		    }
 		    
 		    // Initialize sections list if null
-		    if(sections == null) {
-		        sections = new ArrayList<>();
-		        sections.add("31b1");
-		        sections.add("31b2");
-		        sections.add("31b3");
-		        sections.add("31b4");
-		        sections.add("31b5");
-		        sections.add("31b6");
-		        sections.add("31b7");
-		        sections.add("31b8");
-		        sections.add("31b9");
-		        sections.add("31b10");
-		        sections.add("31b11");
-		    }
-		    System.out.println(postService.getTopWords());
-		    
-		    return postService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr);
+		   
+		    return postService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity);
 		}
 	
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata2")
 		public List<DBObject> getAllDocuments2(){
 //			System.out.println(postService.getAllDocuments());
@@ -424,7 +406,69 @@ public class AuthController {
 			return evidhurService.getAllDocuments2();
 		}
 		
-		 
+
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@GetMapping("/getIntensity")
+		public List<DBObject> getMultiplePlatformfilter(  ) {//change it when the request parameter is coming from frontend
+
+		    return postService.getIntensity();
+		}
+		
+		
+		// Saptang API
+		@Autowired
+		private SaptangService spatangService;
+	
+		
+		@GetMapping("saptangdata")
+		public List<DBObject> saptangData(){
+			return spatangService.getAllData();
+		}
+		
+		
+		@GetMapping("/filter2")
+		public List<DBObject> filterPosts2(
+		        @RequestParam(value = "platforms", required = false) List<String> platforms,
+		        @RequestParam(value = "sections", required = false) List<String> sections,
+		        @RequestParam(value = "sentiments", required = false) List<String> sentiments,
+		        @RequestParam(value = "languages", required = false) List<String> languages
+		       , @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "intensity", required = false) List<String> intensity
+		        
+		    ){
+			 return spatangService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity);
+			
+		}
+		
+		@GetMapping("/filter3")
+		public List<DBObject> filterPosts3(
+		        @RequestParam(value = "platforms", required = false) List<String> platforms,
+		        @RequestParam(value = "sections", required = false) List<String> sections,
+		        @RequestParam(value = "sentiments", required = false) List<String> sentiments,
+		        @RequestParam(value = "languages", required = false) List<String> languages
+		       , @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "intensity", required = false) List<String> intensity
+		        
+		    ){
+			 return evidhurService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity);
+			
+		}
+		
+		
+		@GetMapping("/sentimentsfilter")
+		public List<DBObject> senfilter()
+		{
+			ArrayList<String> newarr=new ArrayList<>();
+			newarr.add("negative");
+//			newarr.add("neutral");
+			System.out.println(postService.getsenfilter(newarr));
+			
+			return postService.getsenfilter(newarr);
+			
+		}
+		
 }
 
 
