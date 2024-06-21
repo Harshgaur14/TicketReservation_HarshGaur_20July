@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.DBObject;
+import com.pmu.pmu.custom.exception.CustomException;
 
 @Service
 public class SaptangService {
@@ -57,9 +58,7 @@ public class SaptangService {
  	              System.out.println(documents);
 // 	              return documents;
  	        } catch (Exception e) {
- 	            // Handle any exceptions
- 	            e.printStackTrace();
-// 	            return null;
+ 	            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
  	        }
     		 
     		 

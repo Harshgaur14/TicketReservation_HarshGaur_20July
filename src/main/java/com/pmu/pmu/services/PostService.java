@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.DBObject;
+import com.pmu.pmu.custom.exception.CustomException;
 
 
 
@@ -51,22 +52,30 @@ private static final ArrayList<String> myList;
 	}
 	
 	
-	public List<DBObject> getAllDocuments(){
-		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"posts");
-		List<String> sentimentlist=new ArrayList<>();
-		sentimentlist.add("negative");
-		sentimentlist.add("neutral");
-		
-		 if (sentimentlist != null && !sentimentlist.isEmpty()) {
-	            documents = documents.stream()
-	            		.filter(doc -> sentimentlist.contains(doc.get("sentiment")) &&
-                             doc.containsField("all_sections"))
-              .collect(Collectors.toList());
+	 public List<DBObject> getAllDocuments() {
+	        try {
+	            Query query = new BasicQuery("{}");
+	            List<DBObject> documents = mongoTemplate.find(query, DBObject.class, "posts");
+	            List<String> sentimentList = new ArrayList<>();
+	            sentimentList.add("negative");
+	            sentimentList.add("neutral");
+
+	            if (sentimentList != null && !sentimentList.isEmpty()) {
+	                documents = documents.stream()
+	                    .filter(doc -> sentimentList.contains(doc.get("sentiment")) &&
+	                        doc.containsField("all_sections"))
+	                    .collect(Collectors.toList());
+	            }
+
+	            if (documents.isEmpty()) {
+	                throw new CustomException("No documents found with the specified sentiments and sections.");
+	            }
+
+	            return documents;
+	        } catch (Exception e) {
+	            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
 	        }
-		
-		return documents;
-	}
+	    }
 	
 	
 	
@@ -156,10 +165,8 @@ private static final ArrayList<String> myList;
             List<DBObject> countsByPlatform = results.getMappedResults();
             
             return countsByPlatform;
-        } catch (Exception e) {
-            // Handle any exceptions
-            e.printStackTrace();
-            return null;
+        }catch (Exception e) {
+            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
         }
 
     }
@@ -226,11 +233,9 @@ private static final ArrayList<String> myList;
          
        
 
-        } catch (Exception e) {
-	            // Handle any exceptions
-	            e.printStackTrace();
-//	            return null;
-	        }
+        }catch (Exception e) {
+            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
+        }
         
         
         // Process documents to extract and count hashtags
@@ -356,14 +361,12 @@ private static final ArrayList<String> myList;
          System.out.println(countsBySentiment);
          return countsBySentiment;
          } catch (Exception e) {
- 	            // Handle any exceptions
- 	            e.printStackTrace();
-// 	            return null;
- 	        }
+             throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
+         }
     	
     	
 
-        return null;
+    
     }
     
    
@@ -441,10 +444,8 @@ private static final ArrayList<String> myList;
       
 
          } catch (Exception e) {
- 	            // Handle any exceptions
- 	            e.printStackTrace();
-// 	            return null;
- 	        }
+             throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
+         }
     	
     	int count = 0;
         for (DBObject document : documents) {
@@ -539,137 +540,80 @@ private static final ArrayList<String> myList;
 
               return documents;
         } catch (Exception e) {
-            // Handle any exceptions
-            e.printStackTrace();
-            return null;
+            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
         }
     }
     
     public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
-    		List<String> languages,String startDateStr, String endDateStr,List<String> intensity) {
-        
-//    	System.out.println(platforms);
-    	System.out.println("--"+sections);
-//    	System.out.println(sentiments);
-//    	System.out.println(languages);
-    	System.out.println(startDateStr);
-    	System.out.println(endDateStr);
-    	
-    	 List<DBObject> documents=null;
-    	 if(startDateStr!=null&&endDateStr!=null) {
-    		 
-    		 try {
-  		        
-      	          
-  	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-  	            // Create query to retrieve documents between startDate and endDate
-  	        	  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
-
-  	              // Parse the date strings into Date objects
-  	              Date startDate = dateFormat.parse(startDateStr);
-  	              Date endDate = dateFormat.parse(endDateStr);
-
-  	              // Create query to retrieve documents between startDate and endDate
-  	              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
-
-  	              // Execute query and retrieve documents
-  	              documents = mongoTemplate.find(query, DBObject.class, "posts");
-  	              System.out.println(documents);
-//  	              return documents;
-  	        } catch (Exception e) {
-  	            // Handle any exceptions
-  	            e.printStackTrace();
-//  	            return null;
-  	        }
-    		 
-    		 
-//    		 
-//	        	
-//    		 Criteria dateCriteria = Criteria.where("datetime").gte(startDateStr).lte(endDateStr);
-//    	        Query query = new Query(dateCriteria);
-//    	    	
-//    	    	
-//    	         documents = mongoTemplate.find(query, DBObject.class, "posts");
-//    		 System.out.println(documents);
-    		 
-			}else
-			{
-				Query query=new BasicQuery("{}");
-				 documents=mongoTemplate.find(query,DBObject.class,"posts");
-				 System.out.println(documents);
-			}
-    	
-    	
-    	
-    	
-    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
-    			
-    		
-		if (platforms != null && !platforms.isEmpty() ) {
-            System.out.println("Filtering by platforms: " + platforms);
-            documents = documents.stream()
-                    .filter(doc -> platforms.contains(doc.get("platform")))
-                    .collect(Collectors.toList());
-        }
-    		}
-
-		 
-		
-		 if (sentiments != null && !sentiments.isEmpty()) {
-	            documents = documents.stream()
-	            		.filter(doc -> sentiments.contains(doc.get("sentiment")) &&
-                                doc.containsField("all_sections"))
-                 .collect(Collectors.toList());
-	          
-	        }else {
-	        	
-	        	List<String> sentimentlist=new ArrayList<>();
-	    		sentimentlist.add("negative");
-	    		sentimentlist.add("neutral");
-	    		
-	    		 if (sentimentlist != null && !sentimentlist.isEmpty()) {
-	    	            documents = documents.stream()
-	    	            		.filter(doc -> sentimentlist.contains(doc.get("sentiment")) &&
-	                                 doc.containsField("all_sections"))
-	                  .collect(Collectors.toList());
-	    	        }
-	    		 
-	        	
-	        	
-	        }
-		 
-		
-		 
-		 if (intensity != null && !intensity.isEmpty()) {
-	            documents = documents.stream()
-	                    .filter(doc -> intensity.contains(doc.get("intensity")))
-	                    .collect(Collectors.toList());
-	        }
-		// System.out.println("after sentiments"+documents);
-////		 
-//		 if (languages != null && !languages.isEmpty()) {
-//	            documents = documents.stream()
-//	                    .filter(doc -> languages.contains(doc.get("languages")))
-//	                    .collect(Collectors.toList());
-//	        }
-		 
-		 if (sections != null && !sections.isEmpty()) {
-	            documents = documents.stream()
-	                    .filter(doc -> {
-	                        List<String> allSections = (List<String>) doc.get("all_sections");
-	                        return allSections != null && allSections.stream().anyMatch(sections::contains);
-	                    })
-	                    .collect(Collectors.toList());
-	        }
-		 //System.out.println("after sections"+documents);
-		
-		 System.out.println("working fine------");
+            List<String> languages, String startDateStr, String endDateStr, List<String> intensity) {
+					List<DBObject> documents = null;
+					try {
+					if (startDateStr != null && endDateStr != null) {
+					try {
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+					dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+					
+					// Parse the date strings into Date objects
+					Date startDate = dateFormat.parse(startDateStr);
+					Date endDate = dateFormat.parse(endDateStr);
+					
+					// Create query to retrieve documents between startDate and endDate
+					Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
+					
+					// Execute query and retrieve documents
+					documents = mongoTemplate.find(query, DBObject.class, "posts");
+					} catch (Exception e) {
+					throw new CustomException("Error parsing dates or retrieving documents: " + e.getMessage());
+					}
+					} else {
+					Query query = new BasicQuery("{}");
+					documents = mongoTemplate.find(query, DBObject.class, "posts");
+					}
+					
+					// Filter by platforms if specified
+					if (platforms != null && !platforms.isEmpty() && !platforms.get(0).equals("ALL")) {
+					documents = documents.stream()
+					.filter(doc -> platforms.contains(doc.get("platform")))
+					.collect(Collectors.toList());
+					}
+					
+					// Filter by sentiments if specified
+					if (sentiments != null && !sentiments.isEmpty()) {
+					documents = documents.stream()
+					.filter(doc -> sentiments.contains(doc.get("sentiment")) &&
+					 doc.containsField("all_sections"))
+					.collect(Collectors.toList());
+					} else {
+					List<String> sentimentList = Arrays.asList("negative", "neutral");
+					documents = documents.stream()
+					.filter(doc -> sentimentList.contains(doc.get("sentiment")) &&
+					 doc.containsField("all_sections"))
+					.collect(Collectors.toList());
+					}
+					
+					// Filter by intensity if specified
+					if (intensity != null && !intensity.isEmpty()) {
+					documents = documents.stream()
+					.filter(doc -> intensity.contains(doc.get("intensity")))
+					.collect(Collectors.toList());
+					}
+					
+					// Filter by sections if specified
+					if (sections != null && !sections.isEmpty()) {
+					documents = documents.stream()
+					.filter(doc -> {
+					List<String> allSections = (List<String>) doc.get("all_sections");
+					return allSections != null && allSections.stream().anyMatch(sections::contains);
+					})
+					.collect(Collectors.toList());
+					}
+					
+					} catch (Exception e) {
+					throw new CustomException("An error occurred while filtering documents: " + e.getMessage());
+					}
 		
 		return documents;
-    
-    }
-
+}
 
     	
     

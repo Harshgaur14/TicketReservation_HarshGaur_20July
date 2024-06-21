@@ -36,6 +36,8 @@ import com.pmu.pmu.services.PostService;
 import com.pmu.pmu.services.SaptangService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
+import com.pmu.pmu.services.XPostService;
+import com.pmu.pmu.services.YPostService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -75,6 +77,12 @@ public class AuthController {
 	@Autowired
 	static
 	TokenBlacklist tokenBlacklist;
+	
+	@Autowired
+	private XPostService xpostService;
+	
+	@Autowired
+	private YPostService ypostService;
 	
 	
 	@PostMapping("/signin")
@@ -455,6 +463,37 @@ public class AuthController {
 			 return evidhurService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity);
 			
 		}
+		@GetMapping("/filter4")
+		public List<DBObject> filterXpost(
+				@RequestParam(value = "platforms", required = false) List<String> platforms,
+		        @RequestParam(value = "sections", required = false) List<String> sections,
+		        @RequestParam(value = "sentiments", required = false) List<String> sentiments,
+		        @RequestParam(value = "languages", required = false) List<String> languages
+		       , @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "intensity", required = false) List<String> intensity,
+		        @RequestParam(value = "ctype", required = false) List<String> ctype){
+			
+			return xpostService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);
+			
+		}
+		
+		
+		@GetMapping("/filter5")
+		public List<DBObject> filterYpost(
+				@RequestParam(value = "platforms", required = false) List<String> platforms,
+		        @RequestParam(value = "sections", required = false) List<String> sections,
+		        @RequestParam(value = "sentiments", required = false) List<String> sentiments,
+		        @RequestParam(value = "languages", required = false) List<String> languages
+		       , @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "intensity", required = false) List<String> intensity,
+		        @RequestParam(value = "ctype", required = false) List<String> ctype){
+			
+			return ypostService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);
+			
+		}
+		
 		
 		
 		@GetMapping("/sentimentsfilter")
@@ -468,6 +507,8 @@ public class AuthController {
 			return postService.getsenfilter(newarr);
 			
 		}
+		
+		
 		
 }
 

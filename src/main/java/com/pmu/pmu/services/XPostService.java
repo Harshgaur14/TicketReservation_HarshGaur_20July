@@ -18,21 +18,19 @@ import com.mongodb.DBObject;
 import com.pmu.pmu.custom.exception.CustomException;
 
 @Service
-public class EvidhurService {
+public class XPostService {
 
-	
 	@Autowired
 	private MongoTemplate mongoTemplate;
 	
-	
 	public List<DBObject> getAllDocuments2(){
 		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"evidhur");
+		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"Xposts3");
 		return documents;
 	}
 	
 	public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
-			List<String> languages, String startDateStr, String endDateStr, List<String> intensity) {
+			List<String> languages, String startDateStr, String endDateStr, List<String> intensity,List<String> ctype) {
 		 List<DBObject> documents=null;
     	 if(startDateStr!=null&&endDateStr!=null) {
 	        	
@@ -53,7 +51,7 @@ public class EvidhurService {
     	              Query query = new Query(Criteria.where("datetime").gte(startDate).lte(endDate));
 
     	              // Execute query and retrieve documents
-    	              documents = mongoTemplate.find(query, DBObject.class, "evidhur");
+    	              documents = mongoTemplate.find(query, DBObject.class, "Xposts3");
     	              System.out.println(documents);
 //    	              return documents;
     	        }catch (Exception e) {
@@ -73,25 +71,25 @@ public class EvidhurService {
 			}else
 			{
 				Query query=new BasicQuery("{}");
-				 documents=mongoTemplate.find(query,DBObject.class,"evidhur");
+				 documents=mongoTemplate.find(query,DBObject.class,"Xposts3");
 				 System.out.println(documents);
 			}
     	
     	
     	
     	
-    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
-    			
-    		
-		if (platforms != null && !platforms.isEmpty() ) {
-            System.out.println("Filtering by platforms: " + platforms);
-            documents = documents.stream()
-                    .filter(doc -> platforms.contains(doc.get("platform")))
-                    .collect(Collectors.toList());
-        }
-    		}
+//    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
+//    			
+//    		
+//		if (platforms != null && !platforms.isEmpty() ) {
+//            System.out.println("Filtering by platforms: " + platforms);
+//            documents = documents.stream()
+//                    .filter(doc -> platforms.contains(doc.get("platform")))
+//                    .collect(Collectors.toList());
+//        }
+//    		}
 
-		 
+    	 System.out.println("hey2"+documents);
 		
 		 if (sentiments != null && !sentiments.isEmpty()) {
 	            documents = documents.stream()
@@ -137,11 +135,17 @@ public class EvidhurService {
 	        }
 		 //System.out.println("after sections"+documents);
 		
+		 if (ctype != null && !ctype.isEmpty()) {
+	            documents = documents.stream()
+	                    .filter(doc -> {
+	                        String contentType = doc.get("content_type").toString();
+	                        return ctype.stream().anyMatch(contentType::contains);
+	                    })
+	                    .collect(Collectors.toList());
+	        }
 
 		
 		return documents;
 	}
-	
-	
 	
 }
