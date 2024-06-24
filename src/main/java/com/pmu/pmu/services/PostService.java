@@ -597,6 +597,12 @@ private static final ArrayList<String> myList;
 					.filter(doc -> intensity.contains(doc.get("intensity")))
 					.collect(Collectors.toList());
 					}
+// languages is not in most of the data so not working properly					
+//					if (languages != null && !languages.isEmpty()) {
+//						documents = documents.stream()
+//						.filter(doc -> languages.contains(doc.get("languages")))
+//						.collect(Collectors.toList());
+//						}
 					
 					// Filter by sections if specified
 					if (sections != null && !sections.isEmpty()) {

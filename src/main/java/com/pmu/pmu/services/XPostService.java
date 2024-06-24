@@ -3,7 +3,9 @@ package com.pmu.pmu.services;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -78,18 +80,18 @@ public class XPostService {
     	
     	
     	
-//    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
-//    			
-//    		
-//		if (platforms != null && !platforms.isEmpty() ) {
-//            System.out.println("Filtering by platforms: " + platforms);
-//            documents = documents.stream()
-//                    .filter(doc -> platforms.contains(doc.get("platform")))
-//                    .collect(Collectors.toList());
-//        }
-//    		}
+    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
+    			
+    		
+		if (platforms != null && !platforms.isEmpty() ) {
+            System.out.println("Filtering by platforms: " + platforms);
+            documents = documents.stream()
+                    .filter(doc -> platforms.contains(doc.get("platform")))
+                    .collect(Collectors.toList());
+        }
+    		}
 
-    	 System.out.println("hey2"+documents);
+    	 
 		
 		 if (sentiments != null && !sentiments.isEmpty()) {
 	            documents = documents.stream()
@@ -120,6 +122,18 @@ public class XPostService {
 		 
 		 
 		 if (languages != null && !languages.isEmpty()) {
+			 if(languages.contains("other"))
+			 {
+				 languages.remove("other");
+				 for(String lang:getDistinctLanguages())
+				 {
+					 if(!languages.contains(lang)) {
+						 languages.add(lang);
+					 }
+					
+				 }
+				 System.out.println(languages);
+			 }
 	            documents = documents.stream()
 	                    .filter(doc -> languages.contains(doc.get("languages")))
 	                    .collect(Collectors.toList());
@@ -147,5 +161,15 @@ public class XPostService {
 		
 		return documents;
 	}
+	
+	 public List<String> getDistinctLanguages() {
+		 String[] existLang= {"english","hindi","romanized hindi","urdu","tamil","kannada","telugu","malayalam","bengali","punjabi"};
+		 List<String> lang=mongoTemplate.getCollection("Xposts3").distinct("languages", String.class).into(new ArrayList<>());
+		 for(String existlang:existLang)
+		 {
+			 lang.remove(existlang);
+		 }
+	        return lang;
+	    }
 	
 }

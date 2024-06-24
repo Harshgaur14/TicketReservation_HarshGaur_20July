@@ -37,6 +37,7 @@ import com.pmu.pmu.services.SaptangService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
 import com.pmu.pmu.services.XPostService;
+import com.pmu.pmu.services.XYService;
 import com.pmu.pmu.services.YPostService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -506,6 +507,45 @@ public class AuthController {
 			
 			return postService.getsenfilter(newarr);
 			
+		}
+		@Autowired
+		private XYService xyService;
+		
+//		@GetMapping("/filterXY")
+//		public List<DBObject> filterXYpost(
+//		
+//		  @RequestParam(value = "platforms", required = false) List<String> platforms,
+//		  
+//		  @RequestParam(value = "sections", required = false) List<String> sections,
+//		  
+//		  @RequestParam(value = "sentiments", required = false) List<String>
+//		  sentiments,
+//		  
+//		  @RequestParam(value = "languages", required = false) List<String> languages
+//		  , @RequestParam(value = "startDateStr", required = false) String
+//		  startDateStr,
+//		  
+//		  @RequestParam(value = "endDateStr", required = false) String endDateStr,
+//		  
+//		  @RequestParam(value = "intensity", required = false) List<String> intensity,
+//		  
+//		  @RequestParam(value = "ctype", required = false) List<String> ctype
+//		 ){
+//			
+//			//return ypostService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);
+//		return xyService.getFilteredXY(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);	
+//		}
+		
+		@GetMapping("XpostLang")
+		public List<String> XpostLang(){
+			System.out.println(xpostService.getDistinctLanguages());
+			return xpostService.getDistinctLanguages();
+		}
+		
+		@GetMapping("YpostLang")
+		public List<String> YpostLang(){
+			System.out.println(ypostService.getDistinctLanguages());
+			return ypostService.getDistinctLanguages();
 		}
 		
 		
