@@ -14,4 +14,7 @@ public class CustomException extends RuntimeException {
 		
         super(message);
     }
+	  public CustomException(String message, Throwable cause) {
+	        super(message, cause);
+	    }
 }

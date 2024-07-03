@@ -1,5 +1,6 @@
 package com.pmu.pmu.services;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,16 +22,19 @@ import com.pmu.pmu.custom.exception.CustomException;
 @Service
 public class YPostService {
 
-	@Autowired
-	private MongoTemplate mongoTemplate;
-	
-	public List<DBObject> getAllDocuments2(){
-		Query query=new BasicQuery("{}");
-		List<DBObject> documents=mongoTemplate.find(query,DBObject.class,"Yposts3");
-		return documents;
-	}
-	
-	public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    public List<DBObject> getAllDocuments2() {
+        try {
+            Query query = new BasicQuery("{}");
+            return mongoTemplate.find(query, DBObject.class, "Yposts3");
+        } catch (DataAccessException e) {
+            throw new CustomException("Failed to retrieve documents: " + e.getMessage());
+        }
+    }
+
+    public List<DBObject> getFilteredPosts(List<String> platforms, List<String> sections, List<String> sentiments,
 			List<String> languages, String startDateStr, String endDateStr, List<String> intensity,List<String> ctype) {
 		 List<DBObject> documents=null;
     	 if(startDateStr!=null&&endDateStr!=null) {
@@ -52,7 +57,7 @@ public class YPostService {
 
     	              // Execute query and retrieve documents
     	              documents = mongoTemplate.find(query, DBObject.class, "Yposts3");
-    	              System.out.println(documents);
+//    	              System.out.println(documents);
 //    	              return documents;
     	        }catch (Exception e) {
     	            throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
@@ -72,24 +77,24 @@ public class YPostService {
 			{
 				Query query=new BasicQuery("{}");
 				 documents=mongoTemplate.find(query,DBObject.class,"Yposts3");
-				 System.out.println(documents);
+//				 System.out.println(documents);
 			}
     	
     	
     	
     	
-//    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
-//    			
-//    		
-//		if (platforms != null && !platforms.isEmpty() ) {
-//            System.out.println("Filtering by platforms: " + platforms);
-//            documents = documents.stream()
-//                    .filter(doc -> platforms.contains(doc.get("platform")))
-//                    .collect(Collectors.toList());
-//        }
-//    		}
+    		if(platforms != null&&!platforms.get(0).equals("ALL")) {
+    			
+    		
+		if (platforms != null && !platforms.isEmpty() ) {
+            System.out.println("Filtering by platforms: " + platforms);
+            documents = documents.stream()
+                    .filter(doc -> platforms.contains(doc.get("platform")))
+                    .collect(Collectors.toList());
+        }
+    		}
 
-    	 System.out.println("hey5"+documents);
+//    	 System.out.println("hey2"+documents);
 		
 		 if (sentiments != null && !sentiments.isEmpty()) {
 	            documents = documents.stream()
@@ -120,6 +125,18 @@ public class YPostService {
 		 
 		 
 		 if (languages != null && !languages.isEmpty()) {
+			 if(languages.contains("other"))
+			 {
+				 languages.remove("other");
+				 for(String lang:getDistinctLanguages())
+				 {
+					 if(!languages.contains(lang)) {
+						 languages.add(lang);
+					 }
+					
+				 }
+				 System.out.println(languages);
+			 }
 	            documents = documents.stream()
 	                    .filter(doc -> languages.contains(doc.get("languages")))
 	                    .collect(Collectors.toList());
@@ -147,6 +164,14 @@ public class YPostService {
 		
 		return documents;
 	}
-	
-	
+    
+    public List<String> getDistinctLanguages(){
+    	 String[] existLang= {"english","hindi","romanized hindi","urdu","tamil","kannada","telugu","malayalam","bengali","punjabi"};
+		 List<String> lang=mongoTemplate.getCollection("Yposts3").distinct("languages", String.class).into(new ArrayList<>());
+		 for(String existlang:existLang)
+		 {
+			 lang.remove(existlang);
+		 }
+	        return lang;
+	        }
 }

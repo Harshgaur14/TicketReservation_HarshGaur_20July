@@ -1,6 +1,8 @@
 package com.pmu.pmu.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +40,7 @@ import com.pmu.pmu.services.SaptangService;
 import com.pmu.pmu.services.UserDetailsImpl;
 import com.pmu.pmu.services.UsersService;
 import com.pmu.pmu.services.XPostService;
+import com.pmu.pmu.services.XYService;
 import com.pmu.pmu.services.YPostService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -114,8 +118,14 @@ public class AuthController {
 	}
 	
 	@PostMapping("/signup")
-	  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+	  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest,BindingResult bindingResult) {
 	    
+		  if (bindingResult.hasErrors()) {
+		        Map<String, String> errors = new HashMap<>();
+		        bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+		        System.out.println(ResponseEntity.badRequest().body(errors));
+		        return ResponseEntity.badRequest().body(errors);
+		    }
 		if (usersService.isUsernameExists(signUpRequest.getUsername())) {
 			return ResponseEntity
 	          .badRequest()
@@ -133,6 +143,7 @@ public class AuthController {
 	    user.setUsername(signUpRequest.getUsername());
 	    user.setPassword(encoder.encode(signUpRequest.getPassword()));
 	    user.setRole(signUpRequest.getRole());
+	    user.setPhoneNo(signUpRequest.getPhoneNo());
 	    usersService.saveUser(user);
 
 	    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
@@ -163,7 +174,7 @@ public class AuthController {
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
 		System.out.println("hello working");
-			return postService.getAllDocuments();
+			return  postService.getAllDocuments();
 		}
 		
 		@GetMapping("/gettrends")
@@ -507,12 +518,86 @@ public class AuthController {
 			return postService.getsenfilter(newarr);
 			
 		}
+		@Autowired
+		private XYService xyService;
+		
+		@GetMapping("/filterXY")
+		public List<DBObject> filterXYpost(
+		
+		  @RequestParam(value = "platforms", required = false) List<String> platforms,
+		  
+		  @RequestParam(value = "sections", required = false) List<String> sections,
+		  
+		  @RequestParam(value = "sentiments", required = false) List<String>
+		  sentiments,
+		  
+		  @RequestParam(value = "languages", required = false) List<String> languages
+		  , @RequestParam(value = "startDateStr", required = false) String
+		  startDateStr,
+		  
+		  @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		  
+		  @RequestParam(value = "intensity", required = false) List<String> intensity,
+		  
+		  @RequestParam(value = "ctype", required = false) List<String> ctype
+		 ){
+			
+			//return ypostService.getFilteredPosts(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);
+		return xyService.getFilteredXY(platforms, sections, sentiments, languages,startDateStr,endDateStr,intensity,ctype);	
+		}
+		
+		@GetMapping("/filter6")
+		public List<DBObject> filterXYdata(){
+			return xyService.getAlldata();
+		}
+		
+		@GetMapping("XpostLang")
+		public List<String> XpostLang(){
+			System.out.println(xpostService.getDistinctLanguages());
+			return xpostService.getDistinctLanguages();
+		}
+		
+		@GetMapping("YpostLang")
+		public List<String> YpostLang(){
+			System.out.println(ypostService.getDistinctLanguages());
+			return ypostService.getDistinctLanguages();
+		}
+		
+		@GetMapping("/XYPlatformcount")
+		public List<DBObject> getCountofPlatformXY( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,@RequestParam(value="platform",required = false) String platformwise){
+		
+			return xyService.getCountbyPlatform(startDateStr,endDateStr,platformwise);
+		}
+		
+		@GetMapping("/XYHashtagslatest")
+		public List<Map.Entry<String, Integer>> XYHashtagslatest( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "platform", required = false) String platformwise){
+			List<Map.Entry<String, Integer>> newdata=new ArrayList<>();	
+			
+			newdata=xyService.getTrendingHashtagsLatest(startDateStr,endDateStr,platformwise);
+			//below code to remove N/A from the hashtags
+			Iterator<Map.Entry<String, Integer>> iterator = newdata.iterator();
+	        while (iterator.hasNext()) {
+	            Map.Entry<String, Integer> entry = iterator.next();
+	            if (entry.getKey().equals("N/A")) {
+	                iterator.remove();
+	            }
+	        }
+			List<Map.Entry<String, Integer>> filteredData = newdata.stream()
+	                .filter(entry -> entry.getValue() > 0)
+	                .collect(Collectors.toList());
+		 System.out.println(filteredData);
+		return filteredData;
+		}
+		
+		
+		
 		
 		
 		
 }
-
-
 
 
 
