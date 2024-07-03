@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Document(collection = "users")
@@ -24,9 +25,31 @@ public class User {
 	  @NotBlank
 	  @Size(max = 120)
 	  private String password;
+	  
+//	  @NotBlank
+	  @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number")
+	    private String phoneNo;
+	    
+	    private boolean approveStatus = false;
 
 
-	  private String role;
+	  public String getPhoneNo() {
+			return phoneNo;
+		}
+
+		public void setPhoneNo(String phoneNo) {
+			this.phoneNo = phoneNo;
+		}
+
+		public boolean isApproveStatus() {
+			return approveStatus;
+		}
+
+		public void setApproveStatus(boolean approveStatus) {
+			this.approveStatus = approveStatus;
+		}
+
+	private String role;
 
 	  public String getId() {
 		return id;

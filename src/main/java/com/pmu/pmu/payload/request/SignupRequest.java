@@ -15,6 +15,28 @@ public class SignupRequest {
     private String role;
     
     @NotBlank
+    @Pattern(regexp = "^\\+?[0-9. ()-]{10,15}$", message = "Invalid phone number")
+    private String phoneNo;
+    
+    private boolean approveStatus = false;
+    
+    public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+
+	public boolean isApproveStatus() {
+		return approveStatus;
+	}
+
+	public void setApproveStatus(boolean approveStatus) {
+		this.approveStatus = approveStatus;
+	}
+
+	@NotBlank
     @Size(min = 6, max = 40)
     private String password;
   

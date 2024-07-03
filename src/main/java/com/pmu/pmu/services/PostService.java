@@ -105,13 +105,13 @@ private static final ArrayList<String> myList;
     }
     
     
-    //last 6 days count
+    //last 360 days count
     public List<DBObject> getCountOfDocumentsByPlatformlatest( String startDateStr, String endDateStr) {
     	
     	//current date 
     	LocalDateTime currentDateTime = LocalDateTime.now();
-        //6days before date
-    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
+        //360days before date
+    	LocalDateTime lastWeekDateTime = currentDateTime.minusDays(360);
     	
     	
         // Print the current date and time
@@ -191,8 +191,8 @@ private static final ArrayList<String> myList;
 	 List<DBObject> documents=null;
         // Current date
         LocalDateTime currentDateTime = LocalDateTime.now();
-        // 6 days before date
-        LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
+        // 360 days before date
+        LocalDateTime lastWeekDateTime = currentDateTime.minusDays(360);
 
         // Format the current date and time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -311,8 +311,8 @@ private static final ArrayList<String> myList;
     	 List<DBObject> documents=null;
          // Current date
          LocalDateTime currentDateTime = LocalDateTime.now();
-         // 6 days before date
-         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
+         // 360 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(360);
 
          // Format the current date and time
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -402,8 +402,8 @@ private static final ArrayList<String> myList;
     	 List<DBObject> documents=null;
          // Current date
          LocalDateTime currentDateTime = LocalDateTime.now();
-         // 6 days before date
-         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(6);
+         // 360 days before date
+         LocalDateTime lastWeekDateTime = currentDateTime.minusDays(360);
 
          // Format the current date and time
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
