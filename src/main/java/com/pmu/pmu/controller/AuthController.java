@@ -116,7 +116,7 @@ public class AuthController {
 //		System.out.println(roles);
 		return ResponseEntity.ok(new JwtResponse(jwt));
 	}
-	
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping("/signup")
 	  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest,BindingResult bindingResult) {
 	    
@@ -169,7 +169,7 @@ public class AuthController {
 	
 		
 		
-		//@PreAuthorize("hasRole('ROLE_ADMIN')")
+		@PreAuthorize("hasRole('ROLE_ADMIN')")
 		@GetMapping("/getdata")
 		public List<DBObject> getAllDocuments(){
 //			System.out.println(postService.getAllDocuments());
@@ -594,7 +594,20 @@ public class AuthController {
 		
 		
 		
-		
+		@GetMapping("/XYSectionscounts")
+		public Map<String, Integer> XYSectionscounts( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr){
+			//System.out.println(xyService.getAllSectionslatest(startDateStr,endDateStr));
+//			System.out.println(xyService.XYSections("3(1)b(II)",startDateStr, endDateStr));
+			return xyService.getAllSectionslatest(startDateStr,endDateStr);
+		}
+		@GetMapping("/XYSectioncounts")
+		public Map<String, Integer> XYSectionscounts2( @RequestParam(value = "startDateStr", required = false) String startDateStr,
+		        @RequestParam(value = "endDateStr", required = false) String endDateStr,
+		        @RequestParam(value = "section", required = true) String section){
+			
+			return xyService.countSectionPlatformwise(section,startDateStr, endDateStr);
+		}
 		
 		
 }

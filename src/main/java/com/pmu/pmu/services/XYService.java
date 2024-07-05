@@ -31,7 +31,24 @@ import com.pmu.pmu.custom.exception.CustomException;
 
 @Service
 public class XYService {
+	private static final ArrayList<String> myList;
+	
+	static {
+		 myList=new ArrayList<>();
+		 myList.add("3(1)b(I)");
+	        myList.add("3(1)b(II)");
+	        myList.add("3(1)b(III)");
+	        myList.add("3(1)b(IV)");
+	        myList.add("3(1)b(V)");
+	        myList.add("3(1)b(VI)");
+	        myList.add("3(1)b(VII)");
+	        myList.add("3(1)b(VIII)");
+	        myList.add("3(1)b(IX)");
 
+	        myList.add("3(1)b(X)");
+	        myList.add("3(1)b(XI)");
+	}
+	
 	@Autowired
     private MongoTemplate mongoTemplate;
 	
@@ -366,9 +383,132 @@ public class XYService {
 	    
 	    }
 	  
+	  public Map<String,Integer> getAllSectionslatest(String startDateStr, String endDateStr)
+	    {
+	    	Map<String,Integer> countAll=new HashMap<>();
+	    	for(String s:myList)
+	    	{
+	    		countAll.put(s, countSectionlatest(s,startDateStr,endDateStr));
+	    	}
+	    	System.out.println(countAll);
+	    	
+	    	return countAll;
+	    }
 	  
 	  
+	  public int countSectionlatest(String section,String startDateStr, String endDateStr) {
+	    	
+	    	 List<DBObject> documents=null;
+	      
+	         try {
+	         if(startDateStr==null&&endDateStr==null) {
+	        	 Query query=new BasicQuery("{}");
+		    		 documents=mongoTemplate.find(query,DBObject.class,"Digiposts");
+		    	
+	             
+	         	 }else {
+	         		 System.out.println("withdate");
+
+
+	         // Fetch documents based on date criteria
+	         
+	             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+	             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+	             // Parse the date strings into Date objects
+	             Date startDate = dateFormat.parse(startDateStr);
+	             Date endDate = dateFormat.parse(endDateStr);
+	             
+	             
+	             
+	             
+	             
+	            
+	                 // Create query to retrieve documents between startDate and endDate
+	                 Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
+	                 Query query = new Query(dateCriteria);
+	        
+	          documents = mongoTemplate.find(query, DBObject.class, "Digiposts");
+	         	 }
+
+	         } catch (Exception e) {
+	             throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
+	         }
+	    	
+	    	int count = 0;
+	        for (DBObject document : documents) {
+	            List<String> allSections = (List<String>) document.get("all_sections");
+	            if (allSections != null && allSections.contains(section)) {
+	                count++;
+	            }
+	        }
+
+	        return count;
+	    }
 	  
+	  
+//	  public Map<String,Integer> XYSections(String section,String startDateStr, String endDateStr)
+//	    {
+//	    	Map<String,Integer> countAll=new HashMap<>();
+//	    
+//	  		countAll.put(section, countSectionPlatformwise(section,startDateStr,endDateStr));
+//	    	
+//	    	
+//	    	return countAll;
+//	    }
+	  
+	  public Map<String,Integer> countSectionPlatformwise(String section,String startDateStr, String endDateStr) {
+	    	
+	    	 List<DBObject> documents=null;
+	      
+	         try {
+	         if(startDateStr==null&&endDateStr==null) {
+	        	 Query query=new BasicQuery("{}");
+		    		 documents=mongoTemplate.find(query,DBObject.class,"Digiposts");
+	             
+	         	 }else {
+	         		
+
+	         // Fetch documents based on date criteria
+	         
+	             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+	             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure UTC time zone
+
+	             // Parse the date strings into Date objects
+	             Date startDate = dateFormat.parse(startDateStr);
+	             Date endDate = dateFormat.parse(endDateStr);
+	             
+	             
+	             
+	             
+	             
+	            
+	                 // Create query to retrieve documents between startDate and endDate
+	                 Criteria dateCriteria = Criteria.where("datetime").gte(startDate).lte(endDate);
+	                 Query query = new Query(dateCriteria);
+	        
+	          documents = mongoTemplate.find(query, DBObject.class, "Digiposts");
+	         	 }
+
+	         } catch (Exception e) {
+	             throw new CustomException("An error occurred while retrieving documents: " + e.getMessage());
+	         }
+	         Map<String,Integer> countplatform=new HashMap<>();
+	    	int count = 0;
+	        for (DBObject document : documents) {
+	            List<String> allSections = (List<String>) document.get("all_sections");
+	            String platform = (String) document.get("platform");
+	            if (allSections != null && allSections.contains(section)) {
+	                count++;
+	               
+	                countplatform.put(platform,countplatform.getOrDefault(platform, 0)+1);
+	            }
+	        }
+System.out.println("heeloooo"+countplatform);
+	        return countplatform;
+	    }
 	  
 	  
 	  
