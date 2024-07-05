@@ -16,7 +16,7 @@ public class EmailSenderService {
 						  String body)
 	{
 		SimpleMailMessage message=new SimpleMailMessage();
-		message.setFrom("cybergyan-noida@cdac.in"); //sender email
+		message.setFrom("harshgaur@cdac.in"); //sender email
 		message.setTo(toEmail);
 		message.setText(body);
 		message.setSubject(subject);
@@ -27,15 +27,5 @@ public class EmailSenderService {
 	}
 	
 
-//	String rejectionEmail = "Dear Participant,\n\n" +
-//	        "Thank you for showing your interest in the course \"Ethical Hacking and Penetration Testing\".\n\n" +
-//	        "We are sorry to inform you that your registration request for the course has been rejected due to any of the following reasons:\n\n" +
-//	        "1. You are not eligible for the course.\n" +
-//	        "2. The documents submitted by you are incorrect.\n\n" +
-//	        "For any query, please send an email to at cybergyan-noida@cdac.in.\n\n" +
-//	        "Thanks & Regards,\n" +
-//	        "CyberGyan Team";
-//
-//	senderService.sendEmail(rejectedStudentDtls.getEmailAddress(), "Cyber Gyan", rejectionEmail);
 	
 }
