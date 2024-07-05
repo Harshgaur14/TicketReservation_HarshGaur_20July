@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.DBObject;
-import com.pmu.pmu.emailservice.EmailSenderService;
 import com.pmu.pmu.models.User;
 import com.pmu.pmu.payload.request.LoginRequest;
 import com.pmu.pmu.payload.request.SignupRequest;
@@ -89,9 +88,6 @@ public class AuthController {
 	@Autowired
 	private YPostService ypostService;
 	
-	@Autowired
-	private EmailSenderService emailsenderService;
-	
 	
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -120,7 +116,7 @@ public class AuthController {
 //		System.out.println(roles);
 		return ResponseEntity.ok(new JwtResponse(jwt));
 	}
-	//@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping("/signup")
 	  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest,BindingResult bindingResult) {
 	    
@@ -146,18 +142,9 @@ public class AuthController {
 	    user.setEmail(signUpRequest.getEmail());
 	    user.setUsername(signUpRequest.getUsername());
 	    user.setPassword(encoder.encode(signUpRequest.getPassword()));
-	    user.setRole("ROLE_USER");
-	    user.setApproveStatus(true);
+	    user.setRole(signUpRequest.getRole());
 	    user.setPhoneNo(signUpRequest.getPhoneNo());
 	    usersService.saveUser(user);
-		String emailformat = "Dear User,\n\n" +
-        "Your registeration for DigiNyay is successfull\".\n\n" +
-        "Your credentials details are:\n\n" +
-        "Username :"+signUpRequest.getUsername()+"\n" +
-        "Password :"+signUpRequest.getPassword()+"\n" +
-        "Thanks & Regards,\n" +
-        "DigiNyay Team";
-	    //emailsenderService.sendEmail(signUpRequest.getEmail(), "User Registered Successfully on DigiNyay",emailformat);
 
 	    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	  }
