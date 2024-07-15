@@ -25,7 +25,14 @@ public class EmailSenderService {
 		
 		System.out.println("mail sent successfully...");
 	}
-	
+	 public void sendResetLink(String to, String token) {
+	        String resetUrl = "http://10.226.39.57/reset-password?token=" + token;
+	        SimpleMailMessage message = new SimpleMailMessage();
+	        message.setTo(to);
+	        message.setSubject("Password Reset Request");
+	        message.setText("Click the following link to reset your password: " + resetUrl);
+	        mailSender.send(message);
+	    }
 
 	
 }

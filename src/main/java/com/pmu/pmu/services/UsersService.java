@@ -10,7 +10,7 @@ public interface UsersService {
 	
 public User getUserByUsername(String username);
 	
-	public User getUserByEmail(String email);
+	//public User getUserByEmail(String email);
 	
 	public User saveUser(User user);
 	
@@ -19,6 +19,10 @@ public User getUserByUsername(String username);
 	public boolean isUsernameExists(String username);
 	
 	public boolean isEmailExists(String email);
+	
+	public void updatePassword(String userId,String newPassword);
+
+	public void resetPassword(String email, String newPassword);
 	
 	
 }
