@@ -506,7 +506,6 @@ public class XYService {
 	                countplatform.put(platform,countplatform.getOrDefault(platform, 0)+1);
 	            }
 	        }
-System.out.println("heeloooo"+countplatform);
 	        return countplatform;
 	    }
 	  
