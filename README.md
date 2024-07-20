@@ -39,6 +39,9 @@ User Role
 1. User can check the bus routes, trip, and reservation details.
 2. User can make the reservation.
 
-Validation: Ensures input data meets specified criteria.
-Exception Handling: Manages errors and provides meaningful responses.
+In the Bus Ticket Reservation System project, the signup, signin, and logout modules for both users and admins have been successfully implemented. JWT tokens are generated upon successful login and are used for the authorization of APIs based on the role assigned during registration. The system supports full functionality for admins, including the addition of buses, trips, and routes, and users are able to access bus details. However, the reservation feature is currently incomplete due to time constraints.
+Given additional time, I would be able to complete the Bus Ticket Reservation System, including the full implementation of authorization and authentication for all APIs. This would ensure a comprehensive and secure reservation process, enhancing the functionality and robustness of the system.
+
+
+
 
