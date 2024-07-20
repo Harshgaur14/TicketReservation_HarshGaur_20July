@@ -39,3 +39,6 @@ User Role
 1. User can check the bus routes, trip, and reservation details.
 2. User can make the reservation.
 
+Validation: Ensures input data meets specified criteria.
+Exception Handling: Manages errors and provides meaningful responses.
+
