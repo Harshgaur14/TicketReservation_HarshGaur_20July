@@ -38,5 +38,4 @@ Admin Role
 User Role
 1. User can check the bus routes, trip, and reservation details.
 2. User can make the reservation.
-3. 
 
