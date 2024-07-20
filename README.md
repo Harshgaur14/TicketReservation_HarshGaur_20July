@@ -28,4 +28,15 @@ Description: Authenticates users and admins. Returns a JWT token for authorized 
 
 Roles ROLE_USER: Assigned to users who can book bus tickets and manage their reservations. ROLE_ADMIN: Assigned to admins who can add and manage bus details.
 
-Authorization JWT (JSON Web Token) is used for both authentication and authorization across the system. Ensure you include the JWT token in the Authorization header for protected endpoints.
+Authorization JWT (JSON Web Token) is used for both authentication and authorization across the system. Ensure you include the JWT token in the Authorization header for protected endpoints using spring security.
+
+Admin Role
+1. Add the Bus
+2. Add the trip
+3. add the Route
+
+User Role
+1. User can check the bus routes, trip, and reservation details.
+2. User can make the reservation.
+3. 
+
