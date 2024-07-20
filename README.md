@@ -33,7 +33,7 @@ Authorization JWT (JSON Web Token) is used for both authentication and authoriza
 Admin Role
 1. Add the Bus
 2. Add the trip
-3. add the Route
+3. Add the Route
 
 User Role
 1. User can check the bus routes, trip, and reservation details.
