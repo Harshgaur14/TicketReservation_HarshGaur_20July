@@ -1,6 +1,8 @@
 package com.btrsystem.btrsystem.services;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,5 +22,9 @@ public class RouteService {
     
     public List<Route> getRoutes(){
     	return routeRepository.findAll();
+    }
+    
+    public Optional<Route> findByRouteId(UUID routeId) {
+        return routeRepository.findById(routeId);
     }
 }

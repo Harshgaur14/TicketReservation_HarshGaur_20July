@@ -55,10 +55,9 @@ public class UsersServiceImpl implements UsersService{
 	}
 
 	@Override
-	 public User getUserById(int userId) {
-	        return usersRepository.findById(userId).orElse(null);
-	    }
-
+    public User getUserById(int userId) {
+        return usersRepository.findById(userId).orElse(null);
+    }
 
 	
 	
