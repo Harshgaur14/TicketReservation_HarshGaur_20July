@@ -2,35 +2,35 @@ package com.btrsystem.btrsystem.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.btrsystem.btrsystem.dto.ReservationDTO;
+import com.btrsystem.btrsystem.models.Reservation;
+import com.btrsystem.btrsystem.models.Trip;
 import com.btrsystem.btrsystem.models.User;
 import com.btrsystem.btrsystem.payload.request.SignupRequest;
 import com.btrsystem.btrsystem.payload.response.MessageResponse;
 import com.btrsystem.btrsystem.payload.token.TokenBlacklist;
 import com.btrsystem.btrsystem.security.jwt.JwtUtils;
+import com.btrsystem.btrsystem.services.ReservationService;
+import com.btrsystem.btrsystem.services.TripService;
 import com.btrsystem.btrsystem.services.UsersService;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
-	@Autowired
-	private AuthenticationManager authenticationManager;
+	
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -85,21 +85,36 @@ public class UserController {
 	    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	  }
 	
-		//logout 
-	@PreAuthorize("hasRole('ROLE_USER')")
-	 @GetMapping("/logout")
-	    public static void logout(HttpServletRequest request, HttpServletResponse response) {
-	        // Extract JWT token from the Authorization header
-	        String authorizationHeader = request.getHeader("Authorization");
-	        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-	            // Remove "Bearer " prefix
-	            String jwtToken = authorizationHeader.substring(7);
-	            
-	            // Now you have the JWT token, you can perform further actions like invalidation
-	            TokenBlacklist.invalidateToken(jwtToken);
-	            
-	        }
-	    }
+	
+
+    @Autowired
+    private TripService tripService;
+
+    @Autowired
+    private ReservationService reservationService;
+
+    
+    @PostMapping("/reserve")
+    public Reservation createReservation(ReservationDTO reservationDTO) {
+        // Find the Trip and User entities using the respective services
+        Trip trip = tripService.findTripsByBusId(reservationDTO.getTripId());
+        User user = usersService.getUserById(reservationDTO.getUserId());
+
+        if (trip != null && user != null) {
+            // Create a new Reservation entity
+            Reservation reservation = new Reservation();
+            reservation.setTrip(trip);
+            reservation.setUser(user);
+            reservation.setNumberOfSeats(reservationDTO.getNumberOfSeats());
+            reservation.setTotalAmount(reservationDTO.getTotalAmount());
+
+            // Save and return the Reservation
+            return reservationService.save(reservation);
+        } else {
+            // Handle the case where Trip or User is not found
+            throw new RuntimeException("Trip or User not found");
+        }
+    }
 	
 	
 

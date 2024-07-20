@@ -16,8 +16,8 @@ public class TripService {
 	@Autowired
 	private TripRepository tripRepository;
 	
-	   public Optional<Trip> findTripsByBusId(UUID tripId) {
-	        return tripRepository.findById(tripId);
+	   public Trip findTripsByBusId(UUID tripId) {
+		   return tripRepository.findById(tripId).orElse(null);
 	    }
 	   
 	   public Trip save(Trip trip)
@@ -25,5 +25,6 @@ public class TripService {
 		   return tripRepository.save(trip);
 	   }
 
+	
 	
 }
